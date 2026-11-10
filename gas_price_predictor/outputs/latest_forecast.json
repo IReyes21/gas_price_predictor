@@ -1,0 +1,110 @@
+{
+  "meta": {
+    "source": "SYNTHETIC DEMO DATA (not real prices)",
+    "is_demo": true,
+    "generated": "2026-11-09 10:53",
+    "last_observed_week": "2026-11-02",
+    "forecast_week": "2026-11-09",
+    "current_price": 2.384,
+    "current_crude": 63.25,
+    "train_weeks": 453,
+    "test_weeks": 113,
+    "train_range": [
+      "2015-12-28",
+      "2024-08-26"
+    ],
+    "test_range": [
+      "2024-09-02",
+      "2026-10-26"
+    ]
+  },
+  "Linear regression": {
+    "date": "2026-11-02",
+    "price_now": 2.384,
+    "predicted_next": 2.381599931945536,
+    "actual_next": null,
+    "base_cents": 0.126,
+    "groups_cents": {
+      "Recent pump-price momentum": -0.075,
+      "Crude oil moves": -0.156,
+      "Pump-vs-crude markup gap": 1.742,
+      "Season & holidays": -1.877
+    },
+    "drivers": [
+      {
+        "group": "Season & holidays",
+        "cents": -1.88,
+        "because": "the typical seasonal pattern for that time of year"
+      },
+      {
+        "group": "Pump-vs-crude markup gap",
+        "cents": 1.74,
+        "because": "the pump price sits 12\u00a2 below its usual markup over crude"
+      }
+    ],
+    "summary": "Forecast $2.38, down 0.2\u00a2 from this week's $2.38. Main drivers: Season & holidays subtracts 1.9\u00a2 (the typical seasonal pattern for that time of year); Pump-vs-crude markup gap adds 1.7\u00a2 (the pump price sits 12\u00a2 below its usual markup over crude)."
+  },
+  "Random forest": {
+    "date": "2026-11-02",
+    "price_now": 2.384,
+    "predicted_next": 2.3800769672969118,
+    "actual_next": null,
+    "base_cents": 0.134,
+    "groups_cents": {
+      "Recent pump-price momentum": -0.574,
+      "Crude oil moves": -0.388,
+      "Pump-vs-crude markup gap": 0.689,
+      "Season & holidays": -0.254
+    },
+    "drivers": [
+      {
+        "group": "Pump-vs-crude markup gap",
+        "cents": 0.69,
+        "because": "the pump price sits 12\u00a2 below its usual markup over crude"
+      },
+      {
+        "group": "Recent pump-price momentum",
+        "cents": -0.57,
+        "because": "the pump price fell 0.6\u00a2 this week"
+      },
+      {
+        "group": "Crude oil moves",
+        "cents": -0.39,
+        "because": "crude oil fell $0.55/barrel this week"
+      }
+    ],
+    "summary": "Forecast $2.38, down 0.4\u00a2 from this week's $2.38. Main drivers: Pump-vs-crude markup gap adds 0.7\u00a2 (the pump price sits 12\u00a2 below its usual markup over crude); Recent pump-price momentum subtracts 0.6\u00a2 (the pump price fell 0.6\u00a2 this week); Crude oil moves subtracts 0.4\u00a2 (crude oil fell $0.55/barrel this week)."
+  },
+  "scenarios": [
+    {
+      "crude_shock": -10,
+      "crude_now": 53.25,
+      "Linear regression": 2.317308921954586,
+      "Random forest": 2.36579620033695
+    },
+    {
+      "crude_shock": -5,
+      "crude_now": 58.25,
+      "Linear regression": 2.3494544269500612,
+      "Random forest": 2.3705313759970683
+    },
+    {
+      "crude_shock": 0,
+      "crude_now": 63.25,
+      "Linear regression": 2.381599931945536,
+      "Random forest": 2.3800769672969118
+    },
+    {
+      "crude_shock": 5,
+      "crude_now": 68.25,
+      "Linear regression": 2.413745436941011,
+      "Random forest": 2.419460708412163
+    },
+    {
+      "crude_shock": 10,
+      "crude_now": 73.25,
+      "Linear regression": 2.445890941936486,
+      "Random forest": 2.4225767449380013
+    }
+  ]
+}

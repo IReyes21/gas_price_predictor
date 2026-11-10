@@ -1,0 +1,490 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Gas Price Predictor - prototype</title>
+<style>
+  :root {
+    color-scheme: light;
+    --page: #f9f9f7; --surface: #fcfcfb; --ink: #0b0b0b; --ink2: #52514e; --muted: #898781;
+    --grid: #e1e0d9; --axis: #c3c2b7; --border: rgba(11,11,11,0.10);
+    --blue: #2a78d6; --orange: #eb6834;   /* model identity: linear = blue, forest = orange, everywhere */
+    --up: #e34948; --down: #2a78d6;       /* diverging poles: pushes price up / down */
+    --wash: rgba(11,11,11,0.05);
+  }
+  @media (prefers-color-scheme: dark) {
+    :root {
+      color-scheme: dark;
+      --page: #0d0d0d; --surface: #1a1a19; --ink: #f0efec; --ink2: #c3c2b7; --muted: #898781;
+      --grid: #2c2c2a; --axis: #383835; --border: rgba(255,255,255,0.10);
+      --blue: #3987e5; --orange: #d95926; --up: #e66767; --down: #3987e5;
+      --wash: rgba(255,255,255,0.06);
+    }
+  }
+  * { box-sizing: border-box; }
+  body { margin: 0; background: var(--page); color: var(--ink); font: 15px/1.5 system-ui, -apple-system, "Segoe UI", sans-serif; }
+  main { max-width: 1040px; margin: 0 auto; padding: 28px 20px 56px; }
+  h1 { font-size: 26px; margin: 0 0 4px; font-weight: 650; letter-spacing: -0.01em; }
+  h2 { font-size: 17px; margin: 0; font-weight: 600; }
+  .sub { color: var(--ink2); margin: 0 0 16px; }
+  .badge { display: inline-block; font-size: 12px; font-weight: 600; padding: 2px 8px; border-radius: 999px; border: 1px solid var(--border); background: var(--wash); color: var(--ink2); vertical-align: middle; margin-left: 8px; }
+  .note { border: 1px solid var(--border); border-left: 4px solid var(--orange); background: var(--surface); border-radius: 8px; padding: 10px 14px; margin: 0 0 16px; color: var(--ink2); font-size: 14px; }
+  .note b { color: var(--ink); }
+  .filters { display: flex; flex-wrap: wrap; gap: 16px 24px; align-items: center; margin: 0 0 16px; }
+  .filters label.lbl { font-size: 13px; color: var(--ink2); margin-right: 8px; }
+  .seg { display: inline-flex; border: 1px solid var(--border); border-radius: 8px; overflow: hidden; background: var(--surface); }
+  .seg button { all: unset; cursor: pointer; padding: 6px 14px; font-size: 14px; color: var(--ink2); display: inline-flex; align-items: center; gap: 8px; }
+  .seg button + button { border-left: 1px solid var(--border); }
+  .seg button[aria-pressed="true"] { background: var(--wash); color: var(--ink); font-weight: 600; }
+  .seg button:focus-visible, select:focus-visible, .link:focus-visible, .leg:focus-visible { outline: 2px solid var(--blue); outline-offset: 2px; }
+  .seg .sw { width: 14px; height: 2px; border-radius: 1px; }
+  select { font: inherit; font-size: 14px; padding: 6px 10px; border-radius: 8px; border: 1px solid var(--border); background: var(--surface); color: var(--ink); max-width: 100%; }
+  .card { background: var(--surface); border: 1px solid var(--border); border-radius: 12px; padding: 20px; margin: 0 0 16px; }
+  .card-head { display: flex; justify-content: space-between; align-items: flex-start; gap: 12px; margin-bottom: 4px; }
+  .card p.desc { color: var(--ink2); margin: 2px 0 14px; font-size: 14px; }
+  .link { all: unset; cursor: pointer; font-size: 13px; color: var(--ink2); border: 1px solid var(--border); border-radius: 6px; padding: 3px 10px; white-space: nowrap; }
+  .link:hover { background: var(--wash); }
+  .hero { display: grid; grid-template-columns: minmax(240px, 300px) 1fr; gap: 24px 32px; align-items: start; }
+  @media (max-width: 760px) { .hero { grid-template-columns: 1fr; } }
+  .kicker { font-size: 13px; color: var(--ink2); }
+  .hero-price { font-size: 60px; line-height: 1.05; font-weight: 650; letter-spacing: -0.02em; margin: 6px 0 4px; }
+  .hero-price small { font-size: 18px; font-weight: 500; color: var(--ink2); letter-spacing: 0; }
+  .delta { font-size: 15px; font-weight: 600; }
+  .actual { font-size: 14px; color: var(--ink2); margin-top: 6px; }
+  .drivers { list-style: none; margin: 0; padding: 0; display: grid; gap: 10px; }
+  .drivers li { display: grid; grid-template-columns: 74px 1fr; gap: 12px; align-items: baseline; }
+  .drivers .amt { font-weight: 650; font-size: 16px; white-space: nowrap; }
+  .drivers .grp { font-weight: 600; }
+  .drivers .why { color: var(--ink2); font-size: 14px; display: block; }
+  .legend { display: flex; flex-wrap: wrap; gap: 8px 18px; margin: 0 0 8px; }
+  .leg { all: unset; cursor: pointer; display: inline-flex; align-items: center; gap: 8px; font-size: 13px; color: var(--ink2); padding: 2px 4px; border-radius: 4px; }
+  .leg[aria-pressed="false"] { opacity: 0.4; }
+  .leg .sw { width: 16px; height: 2px; border-radius: 1px; }
+  .leg.static { cursor: default; }
+  svg { display: block; width: 100%; height: auto; overflow: visible; font-family: inherit; }
+  svg text { font-family: inherit; }
+  .t-ink { fill: var(--ink); } .t-ink2 { fill: var(--ink2); } .t-muted { fill: var(--muted); }
+  table { border-collapse: collapse; width: 100%; font-size: 14px; }
+  th, td { text-align: left; padding: 8px 10px; border-bottom: 1px solid var(--grid); }
+  th { font-weight: 600; color: var(--ink2); font-size: 13px; }
+  td.num, th.num { text-align: right; font-variant-numeric: tabular-nums; }
+  td.best { font-weight: 700; }
+  tr.focus td { background: var(--wash); }
+  .tablewrap { overflow-x: auto; }
+  .tablewrap.scroll { max-height: 340px; overflow-y: auto; }
+  .good { color: var(--ink); font-weight: 600; }
+  details { margin-top: 12px; } summary { cursor: pointer; color: var(--ink2); font-size: 14px; }
+  .how { display: grid; grid-template-columns: repeat(auto-fit, minmax(260px, 1fr)); gap: 16px 28px; font-size: 14px; color: var(--ink2); }
+  .how h3 { font-size: 14px; color: var(--ink); margin: 0 0 4px; }
+  .how p { margin: 0; }
+  #tip { position: fixed; z-index: 10; pointer-events: none; background: var(--surface); color: var(--ink); border: 1px solid var(--border); border-radius: 8px; padding: 8px 10px; box-shadow: 0 4px 14px rgba(0,0,0,0.14); font-size: 13px; max-width: 300px; }
+  #tip[hidden] { display: none; }
+  .tip-title { color: var(--ink2); font-size: 12px; margin-bottom: 4px; }
+  .tip-row { display: grid; grid-template-columns: 14px auto 1fr; gap: 8px; align-items: center; padding: 1px 0; }
+  .tip-key { height: 2px; border-radius: 1px; } .tip-key.none { background: none; }
+  .tip-val { font-weight: 650; font-variant-numeric: tabular-nums; } .tip-lab { color: var(--ink2); }
+  footer { color: var(--muted); font-size: 12px; margin-top: 8px; }
+  [hidden] { display: none !important; }
+  @media print { .filters, .link { display: none; } .tableview { display: block !important; } }
+</style>
+</head>
+<body>
+<main>
+  <h1>Gas Price Predictor <span class="badge" id="badge"></span></h1>
+  <p class="sub">Next week's U.S. regular gasoline price, with a plain-English reason for every forecast. DS 305 final project prototype.</p>
+  <div class="note" id="demoNote" role="note" hidden><b>Synthetic demo data.</b> The prices below are generated, not real, so the numbers only show how the prototype works. Put FRED's <code>GASREGW.csv</code> and <code>DCOILWTICO.csv</code> in <code>data/</code> and re-run <code>python src/gas_predictor.py</code> to use real prices.</div>
+
+  <div class="filters" role="group" aria-label="Scope everything below">
+    <div><label class="lbl" id="modelLbl">Model</label>
+      <span class="seg" id="modelSeg" role="group" aria-labelledby="modelLbl"></span></div>
+    <div><label class="lbl" for="weekSel">Week</label><select id="weekSel"></select></div>
+  </div>
+
+  <section class="card" aria-labelledby="heroH">
+    <div class="hero">
+      <div>
+        <div class="kicker" id="heroKicker"></div>
+        <h2 id="heroH" style="font-weight:500;color:var(--ink2);font-size:15px" ></h2>
+        <div class="hero-price"><span id="heroPrice"></span><small> /gal</small></div>
+        <div class="delta" id="heroDelta"></div>
+        <div class="actual" id="heroActual"></div>
+      </div>
+      <div>
+        <div class="kicker" style="margin-bottom:8px">Why this number</div>
+        <ul class="drivers" id="drivers"></ul>
+      </div>
+    </div>
+  </section>
+
+  <section class="card" aria-labelledby="whyH">
+    <div class="card-head"><h2 id="whyH">How the forecast is built</h2><button class="link" data-toggle="why">Table view</button></div>
+    <p class="desc">The forecast starts at this week's pump price. Each group of inputs then pushes it up or down, in cents. The pushes add up exactly to the model's predicted change.</p>
+    <div id="whyChart"></div>
+    <div class="tableview" id="whyTable" hidden></div>
+  </section>
+
+  <section class="card" aria-labelledby="btH">
+    <div class="card-head"><h2 id="btH">How the forecasts did on weeks the models never saw</h2><button class="link" data-toggle="bt">Table view</button></div>
+    <p class="desc">Each point is the price one week after the forecast was made. Click the chart (or pick a week above) to see why the model forecast that week. Click a legend item to hide a line.</p>
+    <div class="legend" id="btLegend"></div>
+    <div id="btChart"></div>
+    <div class="tableview" id="btTable" hidden></div>
+  </section>
+
+  <section class="card" aria-labelledby="scH">
+    <div class="card-head"><h2 id="scH">Scorecard on the held-out weeks</h2></div>
+    <p class="desc" id="scDesc"></p>
+    <div class="tablewrap"><table id="scTable"></table></div>
+    <p class="desc" id="criteria" style="margin-top:12px"></p>
+  </section>
+
+  <section class="card" aria-labelledby="wiH">
+    <div class="card-head"><h2 id="wiH">What if crude oil jumps or drops this week?</h2></div>
+    <p class="desc">The upcoming forecast re-run with this week's crude price shifted by the amount shown. This is what each model learned from history, not a promise about real shocks.</p>
+    <div class="tablewrap"><table id="wiTable"></table></div>
+  </section>
+
+  <section class="card" aria-labelledby="imH">
+    <div class="card-head"><h2 id="imH">What each model relies on</h2><button class="link" data-toggle="im">Table view</button></div>
+    <p class="desc">Average size of each group's push on the weekly forecast across all held-out weeks (cents).</p>
+    <div class="legend" id="imLegend"></div>
+    <div id="imChart"></div>
+    <div class="tableview" id="imTable" hidden></div>
+    <details><summary>Feature-level check: permutation importance</summary>
+      <p class="desc" style="margin-top:8px">How much the error grows (cents of MAE) when one input is shuffled. A second, independent view of what matters.</p>
+      <div class="tablewrap"><table id="permTable"></table></div>
+    </details>
+  </section>
+
+  <section class="card" aria-labelledby="hwH">
+    <h2 id="hwH" style="margin-bottom:12px">How it works, and what it can't do</h2>
+    <div class="how">
+      <div><h3>The prediction</h3><p>Both models predict the <em>change</em> in the pump price one week ahead from 12 inputs: recent pump-price moves, crude oil moves over the last four weeks (converted to dollars per gallon), how far the pump markup over crude is from its 52-week norm, and season/holiday flags. Forecast = this week's price + predicted change.</p></div>
+      <div><h3>The explanation</h3><p>Linear regression: each input's push is its coefficient times how far the input is from average (exact SHAP for a linear model). Random forest: each tree split's change in average prediction is credited to the input it used, then averaged across trees. Either way, base + pushes = the prediction.</p></div>
+      <div><h3>Limits</h3><p>Weekly data only. Supply disruptions, hurricanes, refinery outages and policy changes are not inputs, so the models cannot see them coming and will lag big spikes. Treat the forecast as a planning aid, not financial advice.</p></div>
+    </div>
+  </section>
+  <footer id="foot"></footer>
+</main>
+<div id="tip" role="tooltip" hidden></div>
+<script id="data" type="application/json">__DATA__</script>
+<script>
+"use strict";
+const D = JSON.parse(document.getElementById('data').textContent);
+const LIN = 'Linear regression', RF = 'Random forest', BASE = 'Last-week baseline', ACT = 'Actual price';
+const COLOR = { [LIN]: 'var(--blue)', [RF]: 'var(--orange)', [BASE]: 'var(--muted)', [ACT]: 'var(--ink)' };
+const NS = 'http://www.w3.org/2000/svg';
+const $ = (s, r = document) => r.querySelector(s);
+const rows0 = D.explanations[RF];
+const N = rows0.length - 1;                       // index of the upcoming-forecast row
+const state = { model: RF, idx: N, hidden: new Set() };
+
+/* ---------- helpers ---------- */
+function h(tag, attrs = {}, kids = []) {
+  const e = document.createElement(tag);
+  for (const [k, v] of Object.entries(attrs)) { if (k === 'text') e.textContent = v; else if (k === 'class') e.className = v; else e.setAttribute(k, v); }
+  kids.forEach(c => e.append(c)); return e;
+}
+function s(tag, attrs = {}, parent) {
+  const e = document.createElementNS(NS, tag);
+  for (const [k, v] of Object.entries(attrs)) { if (k === 'text') e.textContent = v; else e.setAttribute(k, v); }
+  if (parent) parent.append(e); return e;
+}
+const usd = v => '$' + v.toFixed(2);
+const sgn = v => (v >= 0 ? '+' : '−');
+const cents = (v, d = 1) => sgn(v) + Math.abs(v).toFixed(d) + '¢';
+const arrow = v => (v >= 0 ? '↑' : '↓');
+const parse = d => new Date(d + 'T00:00:00');
+const fmtDate = d => parse(d).toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' });
+const addDays = (d, n) => { const t = parse(d); t.setDate(t.getDate() + n); return t.toISOString().slice(0, 10); };
+function niceTicks(lo, hi, n = 5) {
+  const raw = (hi - lo) / n, p = Math.pow(10, Math.floor(Math.log10(raw))), f = raw / p;
+  const step = (f < 1.5 ? 1 : f < 3 ? 2 : f < 7 ? 5 : 10) * p, t = [];
+  for (let v = Math.ceil(lo / step - 1e-9) * step; v <= hi + 1e-9; v += step) t.push(+v.toFixed(10));
+  return t;
+}
+function featFmt(f, v) {
+  if (f.startsWith('gas_chg') || f === 'margin_gap_vs_52w') return cents(v * 100);
+  if (f.startsWith('crude_chg')) return sgn(v) + '$' + Math.abs(v * 42).toFixed(2) + '/bbl';
+  if (f === 'summer_season' || f === 'holiday_week') return v ? 'Yes' : 'No';
+  return v.toFixed(2);
+}
+const cur = () => D.explanations[state.model][state.idx];
+
+/* ---------- tooltip ---------- */
+const tipEl = $('#tip');
+function showTip(title, items, x, y) {
+  tipEl.replaceChildren();
+  if (title) tipEl.append(h('div', { class: 'tip-title', text: title }));
+  for (const r of items) {
+    const key = h('span', { class: 'tip-key' + (r.key ? '' : ' none') }); if (r.key) key.style.background = r.key;
+    tipEl.append(h('div', { class: 'tip-row' }, [key, h('span', { class: 'tip-val', text: r.value }), h('span', { class: 'tip-lab', text: r.label })]));
+  }
+  tipEl.hidden = false;
+  const w = tipEl.offsetWidth, hh = tipEl.offsetHeight, pad = 14;
+  let left = x + pad, top = y + pad;
+  if (left + w > innerWidth - 8) left = x - w - pad;
+  if (top + hh > innerHeight - 8) top = y - hh - pad;
+  tipEl.style.left = Math.max(8, left) + 'px'; tipEl.style.top = Math.max(8, top) + 'px';
+}
+const hideTip = () => { tipEl.hidden = true; };
+function focusTip(el, title, items) { const r = el.getBoundingClientRect(); showTip(title, items, r.left + r.width / 2, r.top); }
+
+/* ---------- filters ---------- */
+function buildFilters() {
+  const seg = $('#modelSeg');
+  [RF, LIN].forEach(m => {
+    const sw = h('span', { class: 'sw' }); sw.style.background = COLOR[m];
+    const b = h('button', { type: 'button', 'aria-pressed': String(m === state.model) }, [sw, document.createTextNode(m)]);
+    b.addEventListener('click', () => { state.model = m; render(); });
+    seg.append(b);
+  });
+  const sel = $('#weekSel');
+  const opts = [];
+  opts.push([N, 'Upcoming: forecast for week of ' + fmtDate(D.meta.forecast_week)]);
+  for (let i = N - 1; i >= 0; i--) opts.push([i, 'Back-test: made ' + fmtDate(rows0[i].date) + ' for week of ' + fmtDate(addDays(rows0[i].date, 7))]);
+  opts.forEach(([v, t]) => sel.append(h('option', { value: v, text: t })));
+  sel.addEventListener('change', () => { state.idx = +sel.value; render(); });
+}
+
+/* ---------- hero ---------- */
+function drawHero() {
+  const r = cur(), up = state.idx === N, chg = (r.predicted_next - r.price_now) * 100;
+  $('#heroKicker').textContent = (up ? 'Upcoming forecast' : 'Back-test (forecast made ' + fmtDate(r.date) + ')') + ' · ' + state.model;
+  $('#heroH').textContent = 'Week of ' + fmtDate(addDays(r.date, 7));
+  $('#heroPrice').textContent = usd(r.predicted_next);
+  const d = $('#heroDelta'); d.textContent = arrow(chg) + ' ' + Math.abs(chg).toFixed(1) + '¢ vs. the ' + usd(r.price_now) + ' price when forecast was made';
+  const a = $('#heroActual');
+  a.textContent = r.actual_next == null ? 'Actual price not known yet.' : 'Actual: ' + usd(r.actual_next) + ' (off by ' + Math.abs((r.predicted_next - r.actual_next) * 100).toFixed(1) + '¢)';
+  const ul = $('#drivers'); ul.replaceChildren();
+  if (!r.drivers.length) ul.append(h('li', {}, [h('span'), h('span', { class: 'why', text: 'No single factor stands out; the model sees a flat week.' })]));
+  r.drivers.forEach(x => ul.append(h('li', {}, [
+    h('span', { class: 'amt', text: arrow(x.cents) + ' ' + Math.abs(x.cents).toFixed(1) + '¢' }),
+    h('span', {}, [h('span', { class: 'grp', text: x.group }), h('span', { class: 'why', text: x.cents >= 0 ? 'Pushes up because ' + x.because + '.' : 'Pushes down because ' + x.because + '.' })]),
+  ])));
+}
+
+/* ---------- why chart (diverging bars, cents) ---------- */
+function barPath(x0, x1, y, hgt, r) {
+  const w = Math.abs(x1 - x0); r = Math.min(r, w / 2, hgt / 2);
+  if (w < 0.5) return '';
+  const dir = x1 >= x0 ? 1 : -1;
+  return `M${x0},${y} L${x1 - dir * r},${y} Q${x1},${y} ${x1},${y + r} L${x1},${y + hgt - r} Q${x1},${y + hgt} ${x1 - dir * r},${y + hgt} L${x0},${y + hgt} Z`;
+}
+function groupFeatures(r, g) { const names = D.feature_groups[g]; return r.features.filter(f => names.includes(f.feature)); }
+function drawWhy() {
+  const r = cur(), net = (r.predicted_next - r.price_now) * 100;
+  const items = [{ name: 'Typical weekly drift', c: r.base_cents, base: true }, ...Object.entries(r.groups_cents).map(([g, c]) => ({ name: g, c }))];
+  const W = 760, L = 230, R = 74, rowH = 38, bh = 20, top = 14, plotW = W - L - R;
+  const maxAbs = Math.max(...items.map(i => Math.abs(i.c)), Math.abs(net), 0.5) * 1.2;
+  const ticks = niceTicks(-maxAbs, maxAbs, 6);
+  const x = v => L + plotW / 2 + (v / maxAbs) * (plotW / 2);
+  const H = top + rowH * (items.length + 1) + 34;
+  const svg = s('svg', { viewBox: `0 0 ${W} ${H}`, role: 'img', 'aria-label': `Contributions to the forecast change, in cents. Net ${cents(net)}.` });
+  ticks.forEach(t => {
+    s('line', { x1: x(t), x2: x(t), y1: top - 4, y2: H - 30, stroke: 'var(--grid)', 'stroke-width': 1 }, svg);
+    s('text', { x: x(t), y: H - 12, 'text-anchor': 'middle', 'font-size': 11, class: 't-muted', text: t === 0 ? '0' : cents(t, ticks.some(v => v % 1 !== 0) ? 1 : 0) }, svg);
+  });
+  s('line', { x1: x(0), x2: x(0), y1: top - 4, y2: H - 30, stroke: 'var(--axis)', 'stroke-width': 1 }, svg);
+  const all = [...items, { name: 'Net change', c: net, net: true }];
+  all.forEach((it, i) => {
+    const y = top + i * rowH + (it.net ? 8 : 0), yb = y + (rowH - bh) / 2 - 4;
+    if (it.net) s('line', { x1: 0, x2: W, y1: y - 2, y2: y - 2, stroke: 'var(--grid)', 'stroke-width': 1 }, svg);
+    s('text', { x: L - 14, y: yb + bh / 2 + 4, 'text-anchor': 'end', 'font-size': 13, class: it.net ? 't-ink' : 't-ink2', 'font-weight': it.net ? 650 : 400, text: it.name }, svg);
+    const col = it.c >= 0 ? 'var(--up)' : 'var(--down)';
+    s('path', { d: barPath(x(0), x(it.c), yb, bh, 4), fill: col }, svg);
+    const lx = x(it.c) + (it.c >= 0 ? 8 : -8);
+    s('text', { x: lx, y: yb + bh / 2 + 4, 'text-anchor': it.c >= 0 ? 'start' : 'end', 'font-size': 12.5, class: 't-ink', 'font-weight': it.net ? 650 : 500, text: arrow(it.c) + ' ' + Math.abs(it.c).toFixed(1) + '¢' }, svg);
+    const hit = s('rect', { x: 0, y: y - 2, width: W, height: rowH, fill: 'rgba(0,0,0,0)', tabindex: 0, 'aria-label': it.name + ' ' + cents(it.c) }, svg);
+    const items2 = () => it.net ? [{ value: usd(r.price_now), label: 'price when forecast was made' }, { value: cents(net), label: 'predicted change' }, { value: usd(r.predicted_next), label: 'forecast' }]
+      : it.base ? [{ value: cents(r.base_cents), label: 'average weekly change in training data' }]
+      : groupFeatures(r, it.name).map(f => ({ value: cents(f.cents, 2), label: f.label + ' = ' + featFmt(f.feature, f.value) }));
+    const ttl = it.net ? 'Net change' : it.name + ': ' + cents(it.c, 2);
+    hit.addEventListener('pointermove', e => showTip(ttl, items2(), e.clientX, e.clientY));
+    hit.addEventListener('pointerleave', hideTip); hit.addEventListener('blur', hideTip);
+    hit.addEventListener('focus', () => focusTip(hit, ttl, items2()));
+  });
+  $('#whyChart').replaceChildren(svg);
+
+  const t = h('table');
+  t.append(h('thead', {}, [h('tr', {}, ['Group', 'Input', 'Value', 'Push on forecast'].map((x, i) => h('th', { class: i > 1 ? 'num' : '', text: x })))]));
+  const tb = h('tbody');
+  tb.append(h('tr', {}, [h('td', { text: 'Typical weekly drift' }), h('td', { text: 'Average weekly change in training data' }), h('td', { class: 'num', text: '' }), h('td', { class: 'num', text: cents(r.base_cents, 2) })]));
+  for (const g of Object.keys(D.feature_groups)) groupFeatures(r, g).forEach(f => tb.append(h('tr', {}, [h('td', { text: g }), h('td', { text: f.label }), h('td', { class: 'num', text: featFmt(f.feature, f.value) }), h('td', { class: 'num', text: cents(f.cents, 2) })])));
+  tb.append(h('tr', {}, [h('td', { text: 'Net change', class: 'best' }), h('td', { text: usd(r.price_now) + ' → ' + usd(r.predicted_next) }), h('td'), h('td', { class: 'num best', text: cents(net, 2) })]));
+  t.append(tb); const wrap = h('div', { class: 'tablewrap' }, [t]); $('#whyTable').replaceChildren(wrap);
+}
+
+/* ---------- back-test line chart ---------- */
+function drawBacktest() {
+  const T = D.test_series, n = T.dates.length;
+  const series = [[ACT, T.actual], [BASE, T[BASE]], [LIN, T[LIN]], [RF, T[RF]]];
+  const order = series.filter(([k]) => k !== state.model).concat(series.filter(([k]) => k === state.model));
+  const W = 760, Ht = 300, L = 52, R = 22, Tp = 14, B = 30, pw = W - L - R, ph = Ht - Tp - B;
+  const fc = D.explanations[state.model][N].predicted_next;
+  const vals = series.filter(([k]) => !state.hidden.has(k)).flatMap(([, v]) => v).concat([fc]);
+  const lo = Math.min(...vals), hi = Math.max(...vals), padv = (hi - lo) * 0.06;
+  const ticks = niceTicks(lo - padv, hi + padv, 5);
+  const y0 = ticks[0] - 0.0001 > lo - padv ? lo - padv : Math.min(ticks[0], lo - padv), y1 = Math.max(ticks[ticks.length - 1], hi + padv);
+  const X = i => L + (i / n) * pw, Y = v => Tp + (1 - (v - y0) / (y1 - y0)) * ph;
+  const svg = s('svg', { viewBox: `0 0 ${W} ${Ht}`, role: 'img', 'aria-label': 'Line chart of actual and forecast gasoline prices on held-out weeks, plus the upcoming forecast.' });
+  ticks.forEach(t => {
+    s('line', { x1: L, x2: W - R, y1: Y(t), y2: Y(t), stroke: 'var(--grid)', 'stroke-width': 1 }, svg);
+    s('text', { x: L - 8, y: Y(t) + 4, 'text-anchor': 'end', 'font-size': 11, class: 't-muted', text: '$' + t.toFixed(2) }, svg);
+  });
+  s('line', { x1: L, x2: W - R, y1: Tp + ph, y2: Tp + ph, stroke: 'var(--axis)', 'stroke-width': 1 }, svg);
+  let lastLabelX = -99;
+  T.dates.forEach((d, i) => {
+    const m = parse(d).getMonth(), prev = i ? parse(T.dates[i - 1]).getMonth() : -1;
+    if (m !== prev && [0, 4, 8].includes(m) && X(i) - lastLabelX > 70) {
+      lastLabelX = X(i);
+      s('text', { x: X(i), y: Ht - 8, 'text-anchor': 'middle', 'font-size': 11, class: 't-muted', text: parse(d).toLocaleDateString('en-US', { month: 'short', year: 'numeric' }) }, svg);
+    }
+  });
+  order.forEach(([k, v]) => {
+    if (state.hidden.has(k)) return;
+    s('path', { d: v.map((p, i) => (i ? 'L' : 'M') + X(i) + ',' + Y(p)).join(' '), fill: 'none', stroke: COLOR[k], 'stroke-width': 2, 'stroke-linejoin': 'round', 'stroke-linecap': 'round' }, svg);
+  });
+  // upcoming forecast point (selected model)
+  s('circle', { cx: X(n), cy: Y(fc), r: 5, fill: COLOR[state.model], stroke: 'var(--surface)', 'stroke-width': 2 }, svg);
+  s('text', { x: X(n) - 10, y: Y(fc) - 16, 'text-anchor': 'end', 'font-size': 12, 'font-weight': 600, class: 't-ink', style: 'paint-order:stroke;stroke:var(--surface);stroke-width:5px;stroke-linejoin:round', text: 'Next week ' + usd(fc) }, svg);
+  // selected week marker
+  const sel = state.idx, selX = X(sel);
+  s('line', { x1: selX, x2: selX, y1: Tp, y2: Tp + ph, stroke: 'var(--ink2)', 'stroke-width': 1 }, svg);
+  const selVals = sel < n ? [[ACT, T.actual[sel]], [state.model, T[state.model][sel]]] : [];
+  selVals.forEach(([k, v]) => s('circle', { cx: selX, cy: Y(v), r: 4.5, fill: COLOR[k], stroke: 'var(--surface)', 'stroke-width': 2 }, svg));
+  // crosshair layer
+  const cross = s('line', { y1: Tp, y2: Tp + ph, stroke: 'var(--muted)', 'stroke-width': 1, visibility: 'hidden' }, svg);
+  const dots = order.map(([k]) => s('circle', { r: 4, fill: COLOR[k], stroke: 'var(--surface)', 'stroke-width': 2, visibility: 'hidden' }, svg));
+  const hit = s('rect', { x: L, y: Tp, width: pw + R, height: ph, fill: 'rgba(0,0,0,0)', style: 'cursor:pointer', tabindex: 0, 'aria-label': 'Chart. Left and right arrow keys move through weeks; Enter selects.' }, svg);
+  let kbIdx = Math.min(sel, n - 1);
+  const at = (i, cx, cy, focus) => {
+    i = Math.max(0, Math.min(n, i));
+    cross.setAttribute('x1', X(i)); cross.setAttribute('x2', X(i)); cross.setAttribute('visibility', 'visible');
+    const rowsOut = [];
+    order.forEach(([k, v], j) => { const on = i < n && !state.hidden.has(k); dots[j].setAttribute('visibility', on ? 'visible' : 'hidden'); if (on) { dots[j].setAttribute('cx', X(i)); dots[j].setAttribute('cy', Y(v[i])); } });
+    if (i < n) {
+      series.filter(([k]) => !state.hidden.has(k)).forEach(([k, v]) => rowsOut.push({ key: COLOR[k], value: usd(v[i]), label: k }));
+      showTip('Week of ' + fmtDate(T.dates[i]), rowsOut.concat([{ value: '', label: 'Click to explain this week' }]), cx, cy);
+    } else showTip('Upcoming week of ' + fmtDate(D.meta.forecast_week), [{ key: COLOR[state.model], value: usd(fc), label: state.model + ' forecast' }, { value: '', label: 'Click to explain this week' }], cx, cy);
+    return i;
+  };
+  const idxFrom = e => { const b = hit.getBoundingClientRect(), px = (e.clientX - b.left) * (W / b.width) + L; return Math.round(((px - L) / pw) * n); };
+  hit.addEventListener('pointermove', e => at(idxFrom(e), e.clientX, e.clientY));
+  hit.addEventListener('pointerleave', () => { hideTip(); cross.setAttribute('visibility', 'hidden'); dots.forEach(d => d.setAttribute('visibility', 'hidden')); });
+  hit.addEventListener('click', e => { state.idx = Math.max(0, Math.min(N, idxFrom(e))); render(); });
+  hit.addEventListener('keydown', e => {
+    if (e.key === 'ArrowLeft' || e.key === 'ArrowRight') { e.preventDefault(); kbIdx = Math.max(0, Math.min(N, kbIdx + (e.key === 'ArrowRight' ? 1 : -1))); const b = hit.getBoundingClientRect(); at(kbIdx, b.left + (X(kbIdx) - L) / pw * b.width * (pw / (pw + R)), b.top); }
+    if (e.key === 'Enter') { state.idx = kbIdx; render(); }
+  });
+  hit.addEventListener('blur', hideTip);
+  $('#btChart').replaceChildren(svg);
+
+  const lg = $('#btLegend'); lg.replaceChildren();
+  series.forEach(([k]) => {
+    const sw = h('span', { class: 'sw' }); sw.style.background = COLOR[k];
+    const b = h('button', { type: 'button', class: 'leg', 'aria-pressed': String(!state.hidden.has(k)) }, [sw, document.createTextNode(k)]);
+    b.addEventListener('click', () => { state.hidden.has(k) ? state.hidden.delete(k) : state.hidden.add(k); drawBacktest(); });
+    lg.append(b);
+  });
+
+  const t = h('table');
+  t.append(h('thead', {}, [h('tr', {}, ['Week of', ACT, BASE, LIN, RF].map((x, i) => h('th', { class: i ? 'num' : '', text: x })))]));
+  const tb = h('tbody');
+  for (let i = n - 1; i >= 0; i--) tb.append(h('tr', { class: i === state.idx ? 'focus' : '' }, [h('td', { text: fmtDate(T.dates[i]) }), ...[T.actual, T[BASE], T[LIN], T[RF]].map(a => h('td', { class: 'num', text: usd(a[i]) }))]));
+  t.append(tb); $('#btTable').replaceChildren(h('div', { class: 'tablewrap scroll' }, [t]));
+}
+
+/* ---------- scorecard ---------- */
+function drawScore() {
+  const M = D.metrics, base = M.find(m => m.model === BASE);
+  $('#scDesc').textContent = `${D.meta.test_weeks} chronological test weeks (${fmtDate(D.meta.test_range[0])} to ${fmtDate(D.meta.test_range[1])}). Models were trained only on the ${D.meta.train_weeks} weeks before. Errors are in cents per gallon for the 1-week-ahead price. Lower is better.`;
+  const cols = [['Model', null], ['MAE', 'MAE'], ['RMSE', 'RMSE'], ['MAPE', 'MAPE_pct'], ['MAE vs baseline', null], ['Right direction', 'direction_hit_rate'], ['MAE, biggest 10% moves', 'MAE_on_spike_weeks'], ['Fit time', 'fit_seconds']];
+  const best = k => Math.min(...M.map(m => m[k]));
+  const t = h('table', {}, [h('thead', {}, [h('tr', {}, cols.map(([c], i) => h('th', { class: i ? 'num' : '', text: c })))])]);
+  const tb = h('tbody');
+  M.forEach(m => {
+    const f = (k, fn) => h('td', { class: 'num' + (m.model !== BASE && ['MAE', 'RMSE', 'MAPE_pct', 'MAE_on_spike_weeks'].includes(k) && m[k] === best(k) ? ' best' : ''), text: m[k] == null ? '—' : fn(m[k]) });
+    const imp = m.model === BASE ? '—' : Math.round((1 - m.MAE / base.MAE) * 100) + '% lower';
+    tb.append(h('tr', {}, [h('td', { text: m.model }), f('MAE', v => (v * 100).toFixed(2) + '¢'), f('RMSE', v => (v * 100).toFixed(2) + '¢'), f('MAPE_pct', v => v.toFixed(2) + '%'), h('td', { class: 'num', text: imp }), f('direction_hit_rate', v => Math.round(v * 100) + '%'), f('MAE_on_spike_weeks', v => (v * 100).toFixed(2) + '¢'), f('fit_seconds', v => (v ? (v * 1000).toFixed(0) + ' ms' : '—'))]));
+  });
+  t.append(tb); $('#scTable').replaceWith(Object.assign(t, { id: 'scTable' }));
+  const win = [LIN, RF].map(k => { const m = M.find(x => x.model === k); return k + (m.MAE < base.MAE && m.RMSE < base.RMSE ? ' beats' : ' does not beat') + ' the baseline on MAE and RMSE'; });
+  $('#criteria').textContent = 'Success criterion from the proposal: ' + win.join('; ') + '. Big weekly moves are hardest for every model, as the proposal expected.';
+}
+
+/* ---------- what-if ---------- */
+function drawWhatIf() {
+  const t = h('table');
+  t.append(h('thead', {}, [h('tr', {}, ['If this week’s crude average moves by', 'Crude price', LIN, RF].map((x, i) => h('th', { class: i ? 'num' : '', text: x })))]));
+  const zero = D.scenarios.find(x => x.crude_shock === 0), tb = h('tbody');
+  D.scenarios.forEach(sc => {
+    const cell = k => h('td', { class: 'num' + (sc.crude_shock === 0 ? ' best' : ''), text: usd(sc[k]) + (sc.crude_shock ? '  (' + cents((sc[k] - zero[k]) * 100) + ')' : '') });
+    tb.append(h('tr', {}, [h('td', { text: sc.crude_shock === 0 ? 'No change (the forecast above)' : sgn(sc.crude_shock) + '$' + Math.abs(sc.crude_shock) + ' per barrel' }), h('td', { class: 'num', text: '$' + sc.crude_now.toFixed(2) + '/bbl' }), cell(LIN), cell(RF)]));
+  });
+  t.append(tb); $('#wiTable').replaceWith(Object.assign(t, { id: 'wiTable' }));
+}
+
+/* ---------- importance ---------- */
+function drawImportance() {
+  const gm = D.group_mean_abs_cents, groups = Object.keys(gm[RF]).sort((a, b) => gm[RF][b] + gm[LIN][b] - gm[RF][a] - gm[LIN][a]);
+  const W = 760, L = 230, R = 60, rowH = 56, bh = 16, gap = 3, top = 6, pw = W - L - R;
+  const mx = Math.max(...groups.flatMap(g => [gm[RF][g], gm[LIN][g]])) * 1.1, ticks = niceTicks(0, mx, 5);
+  const H = top + groups.length * rowH + 28, X = v => L + (v / mx) * pw;
+  const svg = s('svg', { viewBox: `0 0 ${W} ${H}`, role: 'img', 'aria-label': 'Grouped bars: average push of each input group on the forecast, per model.' });
+  ticks.forEach(t => {
+    s('line', { x1: X(t), x2: X(t), y1: top, y2: H - 26, stroke: 'var(--grid)', 'stroke-width': 1 }, svg);
+    s('text', { x: X(t), y: H - 8, 'text-anchor': 'middle', 'font-size': 11, class: 't-muted', text: t.toFixed(t % 1 ? 1 : 0) + '¢' }, svg);
+  });
+  s('line', { x1: L, x2: L, y1: top, y2: H - 26, stroke: 'var(--axis)', 'stroke-width': 1 }, svg);
+  groups.forEach((g, i) => {
+    const y = top + i * rowH, y0 = y + (rowH - (2 * bh + gap)) / 2 - 2;
+    s('text', { x: L - 14, y: y + rowH / 2 - 2, 'text-anchor': 'end', 'font-size': 13, class: 't-ink2', text: g }, svg);
+    [LIN, RF].forEach((k, j) => {
+      const by = y0 + j * (bh + gap), v = gm[k][g];
+      s('path', { d: barPath(L, X(v), by, bh, 4), fill: COLOR[k] }, svg);
+      s('text', { x: X(v) + 8, y: by + bh / 2 + 4, 'font-size': 12, class: 't-ink', text: v.toFixed(2) + '¢' }, svg);
+    });
+    const hit = s('rect', { x: 0, y, width: W, height: rowH, fill: 'rgba(0,0,0,0)', tabindex: 0, 'aria-label': g }, svg);
+    const items = () => [LIN, RF].map(k => ({ key: COLOR[k], value: gm[k][g].toFixed(2) + '¢', label: k }));
+    hit.addEventListener('pointermove', e => showTip(g, items(), e.clientX, e.clientY));
+    hit.addEventListener('pointerleave', hideTip); hit.addEventListener('blur', hideTip); hit.addEventListener('focus', () => focusTip(hit, g, items()));
+  });
+  $('#imChart').replaceChildren(svg);
+  const lg = $('#imLegend'); lg.replaceChildren();
+  [LIN, RF].forEach(k => { const sw = h('span', { class: 'sw' }); sw.style.background = COLOR[k]; lg.append(h('span', { class: 'leg static' }, [sw, document.createTextNode(k)])); });
+  const t = h('table'); t.append(h('thead', {}, [h('tr', {}, ['Group', LIN, RF].map((x, i) => h('th', { class: i ? 'num' : '', text: x })))]));
+  const tb = h('tbody'); groups.forEach(g => tb.append(h('tr', {}, [h('td', { text: g }), h('td', { class: 'num', text: gm[LIN][g].toFixed(2) + '¢' }), h('td', { class: 'num', text: gm[RF][g].toFixed(2) + '¢' })])));
+  t.append(tb); $('#imTable').replaceChildren(h('div', { class: 'tablewrap' }, [t]));
+
+  const P = D.permutation_importance, feats = P[RF].map(x => x.feature);
+  const pt = h('table'); pt.append(h('thead', {}, [h('tr', {}, ['Input', LIN, RF].map((x, i) => h('th', { class: i ? 'num' : '', text: x })))]));
+  const pb = h('tbody'); feats.forEach(f => {
+    const a = P[LIN].find(x => x.feature === f), b = P[RF].find(x => x.feature === f);
+    pb.append(h('tr', {}, [h('td', { text: b.label }), h('td', { class: 'num', text: cents(a.mae_increase_cents, 2) }), h('td', { class: 'num', text: cents(b.mae_increase_cents, 2) })]));
+  });
+  pt.append(pb); $('#permTable').replaceWith(Object.assign(pt, { id: 'permTable' }));
+}
+
+/* ---------- wiring ---------- */
+document.querySelectorAll('[data-toggle]').forEach(btn => btn.addEventListener('click', () => {
+  const k = btn.dataset.toggle, tv = $('#' + k + 'Table'), ch = $('#' + k + 'Chart'), showTable = tv.hidden;
+  tv.hidden = !showTable; ch.hidden = showTable; if (k === 'bt') $('#btLegend').hidden = showTable; if (k === 'im') $('#imLegend').hidden = showTable;
+  btn.textContent = showTable ? 'Chart view' : 'Table view';
+}));
+function render() {
+  document.querySelectorAll('#modelSeg button').forEach((b, i) => b.setAttribute('aria-pressed', String([RF, LIN][i] === state.model)));
+  $('#weekSel').value = state.idx;
+  hideTip(); drawHero(); drawWhy(); drawBacktest();
+}
+function init() {
+  $('#badge').textContent = D.meta.is_demo ? 'demo data' : 'real data';
+  $('#demoNote').hidden = !D.meta.is_demo;
+  $('#foot').textContent = D.meta.source + ' · last observed week ' + fmtDate(D.meta.last_observed_week) + ' · generated ' + D.meta.generated;
+  buildFilters(); drawScore(); drawWhatIf(); drawImportance(); render();
+}
+init();
+</script>
+</body>
+</html>
