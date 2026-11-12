@@ -6,7 +6,7 @@
       "Crude data ends 2026-11-03, but gas prices run through 2026-11-09. The newest week's crude value averages only 1 trading day(s), so the upcoming forecast leans on a stale crude reading. Re-download DCOILWTICO.csv once FRED adds newer days.",
       "Only 262 weeks of overlapping data (starting 2021-11-08). FRED's default download covers just the last 5 years: on the DCOILWTICO page set the date range to the maximum and re-download for far more training weeks, which should help every model."
     ],
-    "generated": "2026-11-12 11:18",
+    "generated": "2026-11-12 11:45",
     "last_observed_week": "2026-11-09",
     "forecast_week": "2026-11-16",
     "current_price": 3.995,
