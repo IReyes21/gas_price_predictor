@@ -74,6 +74,27 @@ def score(price_true, price_pred, chg_true, chg_pred, spike_mask):
     }
 
 
+def data_warnings(df, is_demo):
+    """Plain-English data-quality flags, shown in the console and on the dashboard."""
+    out = []
+    if is_demo:
+        return out
+    last_gas, first = df["date"].iloc[-1], df["date"].iloc[0]
+    crude_last = df.attrs.get("crude_last_obs")
+    if crude_last is not None and (last_gas - crude_last).days > 2:
+        n = df.attrs.get("crude_days_in_last_week", 0)
+        out.append(
+            f"Crude data ends {crude_last:%Y-%m-%d}, but gas prices run through {last_gas:%Y-%m-%d}. The newest week's crude value averages only "
+            f"{n} trading day(s), so the upcoming forecast leans on a stale crude reading. Re-download DCOILWTICO.csv once FRED adds newer days."
+        )
+    if (last_gas - first).days < 8 * 365:
+        out.append(
+            f"Only {len(df)} weeks of overlapping data (starting {first:%Y-%m-%d}). FRED's default download covers just the last 5 years: on the "
+            "DCOILWTICO page set the date range to the maximum and re-download for far more training weeks, which should help every model."
+        )
+    return out
+
+
 def main():
     ap = argparse.ArgumentParser(description=__doc__, formatter_class=argparse.RawDescriptionHelpFormatter)
     ap.add_argument("--data-dir", type=Path, default=ROOT / "data")
@@ -87,6 +108,7 @@ def main():
 
     # ---- data + features ---------------------------------------------------------------
     df, source, is_demo = load_weekly(args.data_dir, args.demo)
+    warnings = data_warnings(df, is_demo)
     feats = make_features(df).dropna(subset=FEATURES).reset_index(drop=True)
     forecast_row = feats.iloc[[-1]]
     assert forecast_row["target_chg"].isna().all(), "last row must be the not-yet-observed forecast week"
@@ -182,6 +204,7 @@ def main():
     meta = {
         "source": source,
         "is_demo": is_demo,
+        "warnings": warnings,
         "generated": datetime.now().strftime("%Y-%m-%d %H:%M"),
         "last_observed_week": last["date"].strftime("%Y-%m-%d"),
         "forecast_week": (last["date"] + pd.Timedelta(days=7)).strftime("%Y-%m-%d"),
@@ -226,6 +249,8 @@ def main():
     # ---- console summary ---------------------------------------------------------------
     pd.set_option("display.width", 160)
     print(f"\n{source}")
+    for w in warnings:
+        print("WARNING:", w)
     print(f"Weeks: {len(train)} train ({meta['train_range'][0]} -> {meta['train_range'][1]}), {len(test)} test ({meta['test_range'][0]} -> {meta['test_range'][1]})")
     print("\nHeld-out test results (1-week-ahead price, $/gal):")
     print(metrics.round(4).to_string(index=False))

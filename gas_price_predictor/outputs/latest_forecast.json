@@ -1,110 +1,119 @@
 {
   "meta": {
-    "source": "SYNTHETIC DEMO DATA (not real prices)",
-    "is_demo": true,
-    "generated": "2026-11-09 10:53",
-    "last_observed_week": "2026-11-02",
-    "forecast_week": "2026-11-09",
-    "current_price": 2.384,
-    "current_crude": 63.25,
-    "train_weeks": 453,
-    "test_weeks": 113,
+    "source": "Real data: EIA weekly gasoline (via FRED GASREGW) + FRED WTI (DCOILWTICO)",
+    "is_demo": false,
+    "warnings": [
+      "Crude data ends 2026-11-03, but gas prices run through 2026-11-09. The newest week's crude value averages only 1 trading day(s), so the upcoming forecast leans on a stale crude reading. Re-download DCOILWTICO.csv once FRED adds newer days.",
+      "Only 262 weeks of overlapping data (starting 2021-11-08). FRED's default download covers just the last 5 years: on the DCOILWTICO page set the date range to the maximum and re-download for far more training weeks, which should help every model."
+    ],
+    "generated": "2026-11-12 11:18",
+    "last_observed_week": "2026-11-09",
+    "forecast_week": "2026-11-16",
+    "current_price": 3.995,
+    "current_crude": 99.64,
+    "train_weeks": 168,
+    "test_weeks": 42,
     "train_range": [
-      "2015-12-28",
-      "2024-08-26"
+      "2022-10-31",
+      "2026-01-12"
     ],
     "test_range": [
-      "2024-09-02",
-      "2026-10-26"
+      "2026-01-19",
+      "2026-11-02"
     ]
   },
   "Linear regression": {
-    "date": "2026-11-02",
-    "price_now": 2.384,
-    "predicted_next": 2.381599931945536,
+    "date": "2026-11-09",
+    "price_now": 3.995,
+    "predicted_next": 3.8944467572503445,
     "actual_next": null,
-    "base_cents": 0.126,
+    "base_cents": -0.557,
     "groups_cents": {
-      "Recent pump-price momentum": -0.075,
-      "Crude oil moves": -0.156,
-      "Pump-vs-crude markup gap": 1.742,
-      "Season & holidays": -1.877
+      "Recent pump-price momentum": -6.439,
+      "Crude oil moves": -2.246,
+      "Pump-vs-crude markup gap": 0.794,
+      "Season & holidays": -1.607
     },
     "drivers": [
-      {
-        "group": "Season & holidays",
-        "cents": -1.88,
-        "because": "the typical seasonal pattern for that time of year"
-      },
-      {
-        "group": "Pump-vs-crude markup gap",
-        "cents": 1.74,
-        "because": "the pump price sits 12\u00a2 below its usual markup over crude"
-      }
-    ],
-    "summary": "Forecast $2.38, down 0.2\u00a2 from this week's $2.38. Main drivers: Season & holidays subtracts 1.9\u00a2 (the typical seasonal pattern for that time of year); Pump-vs-crude markup gap adds 1.7\u00a2 (the pump price sits 12\u00a2 below its usual markup over crude)."
-  },
-  "Random forest": {
-    "date": "2026-11-02",
-    "price_now": 2.384,
-    "predicted_next": 2.3800769672969118,
-    "actual_next": null,
-    "base_cents": 0.134,
-    "groups_cents": {
-      "Recent pump-price momentum": -0.574,
-      "Crude oil moves": -0.388,
-      "Pump-vs-crude markup gap": 0.689,
-      "Season & holidays": -0.254
-    },
-    "drivers": [
-      {
-        "group": "Pump-vs-crude markup gap",
-        "cents": 0.69,
-        "because": "the pump price sits 12\u00a2 below its usual markup over crude"
-      },
       {
         "group": "Recent pump-price momentum",
-        "cents": -0.57,
-        "because": "the pump price fell 0.6\u00a2 this week"
+        "cents": -6.44,
+        "because": "the pump price fell 15.8\u00a2 this week"
       },
       {
         "group": "Crude oil moves",
-        "cents": -0.39,
-        "because": "crude oil fell $0.55/barrel this week"
+        "cents": -2.25,
+        "because": "crude oil fell $4.91/barrel this week"
+      },
+      {
+        "group": "Season & holidays",
+        "cents": -1.61,
+        "because": "the typical seasonal pattern for that time of year"
       }
     ],
-    "summary": "Forecast $2.38, down 0.4\u00a2 from this week's $2.38. Main drivers: Pump-vs-crude markup gap adds 0.7\u00a2 (the pump price sits 12\u00a2 below its usual markup over crude); Recent pump-price momentum subtracts 0.6\u00a2 (the pump price fell 0.6\u00a2 this week); Crude oil moves subtracts 0.4\u00a2 (crude oil fell $0.55/barrel this week)."
+    "summary": "Forecast $3.89, down 10.1\u00a2 from this week's $4.00. Main drivers: Recent pump-price momentum subtracts 6.4\u00a2 (the pump price fell 15.8\u00a2 this week); Crude oil moves subtracts 2.2\u00a2 (crude oil fell $4.91/barrel this week); Season & holidays subtracts 1.6\u00a2 (the typical seasonal pattern for that time of year)."
+  },
+  "Random forest": {
+    "date": "2026-11-09",
+    "price_now": 3.995,
+    "predicted_next": 3.93778520153569,
+    "actual_next": null,
+    "base_cents": -0.557,
+    "groups_cents": {
+      "Recent pump-price momentum": -2.744,
+      "Crude oil moves": -1.681,
+      "Pump-vs-crude markup gap": -0.109,
+      "Season & holidays": -0.63
+    },
+    "drivers": [
+      {
+        "group": "Recent pump-price momentum",
+        "cents": -2.74,
+        "because": "the pump price fell 15.8\u00a2 this week"
+      },
+      {
+        "group": "Crude oil moves",
+        "cents": -1.68,
+        "because": "crude oil fell $4.91/barrel this week"
+      },
+      {
+        "group": "Season & holidays",
+        "cents": -0.63,
+        "because": "the typical seasonal pattern for that time of year"
+      }
+    ],
+    "summary": "Forecast $3.94, down 5.7\u00a2 from this week's $4.00. Main drivers: Recent pump-price momentum subtracts 2.7\u00a2 (the pump price fell 15.8\u00a2 this week); Crude oil moves subtracts 1.7\u00a2 (crude oil fell $4.91/barrel this week); Season & holidays subtracts 0.6\u00a2 (the typical seasonal pattern for that time of year)."
   },
   "scenarios": [
     {
       "crude_shock": -10,
-      "crude_now": 53.25,
-      "Linear regression": 2.317308921954586,
-      "Random forest": 2.36579620033695
+      "crude_now": 89.64,
+      "Linear regression": 3.8171657342444236,
+      "Random forest": 3.9410316403543177
     },
     {
       "crude_shock": -5,
-      "crude_now": 58.25,
-      "Linear regression": 2.3494544269500612,
-      "Random forest": 2.3705313759970683
+      "crude_now": 94.64,
+      "Linear regression": 3.855806245747384,
+      "Random forest": 3.936165450950448
     },
     {
       "crude_shock": 0,
-      "crude_now": 63.25,
-      "Linear regression": 2.381599931945536,
-      "Random forest": 2.3800769672969118
+      "crude_now": 99.64,
+      "Linear regression": 3.8944467572503445,
+      "Random forest": 3.93778520153569
     },
     {
       "crude_shock": 5,
-      "crude_now": 68.25,
-      "Linear regression": 2.413745436941011,
-      "Random forest": 2.419460708412163
+      "crude_now": 104.64,
+      "Linear regression": 3.933087268753305,
+      "Random forest": 3.9583391488920197
     },
     {
       "crude_shock": 10,
-      "crude_now": 73.25,
-      "Linear regression": 2.445890941936486,
-      "Random forest": 2.4225767449380013
+      "crude_now": 109.64,
+      "Linear regression": 3.9717277802562654,
+      "Random forest": 3.967072625989661
     }
   ]
 }

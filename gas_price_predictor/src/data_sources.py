@@ -52,7 +52,11 @@ def load_real(data_dir: Path, start: str = "2010-01-01") -> pd.DataFrame:
     gas = gas[gas["date"] >= start].reset_index(drop=True)
     df = pd.DataFrame({"date": gas["date"], "gas": gas["value"]})
     df["crude"] = _weekly_crude(wti, df["date"])
-    return df.dropna().reset_index(drop=True)
+    df = df.dropna().reset_index(drop=True)
+    last_gas = df["date"].iloc[-1]
+    df.attrs["crude_last_obs"] = wti["date"].iloc[-1]
+    df.attrs["crude_days_in_last_week"] = int(((wti["date"] > last_gas - pd.Timedelta(days=7)) & (wti["date"] <= last_gas)).sum())
+    return df
 
 
 def _bump(n: int, centre: int, up: int, down: int, amp: float) -> np.ndarray:

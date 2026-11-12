@@ -95,6 +95,8 @@
   <p class="sub">Next week's U.S. regular gasoline price, with a plain-English reason for every forecast. DS 305 final project prototype.</p>
   <div class="note" id="demoNote" role="note" hidden><b>Synthetic demo data.</b> The prices below are generated, not real, so the numbers only show how the prototype works. Put FRED's <code>GASREGW.csv</code> and <code>DCOILWTICO.csv</code> in <code>data/</code> and re-run <code>python src/gas_predictor.py</code> to use real prices.</div>
 
+  <div id="warnNotes"></div>
+
   <div class="filters" role="group" aria-label="Scope everything below">
     <div><label class="lbl" id="modelLbl">Model</label>
       <span class="seg" id="modelSeg" role="group" aria-labelledby="modelLbl"></span></div>
@@ -481,6 +483,7 @@ function render() {
 function init() {
   $('#badge').textContent = D.meta.is_demo ? 'demo data' : 'real data';
   $('#demoNote').hidden = !D.meta.is_demo;
+  (D.meta.warnings || []).forEach(w => $('#warnNotes').append(h('div', { class: 'note', role: 'note' }, [h('b', { text: 'Heads up: ' }), document.createTextNode(w)])));
   $('#foot').textContent = D.meta.source + ' · last observed week ' + fmtDate(D.meta.last_observed_week) + ' · generated ' + D.meta.generated;
   buildFilters(); drawScore(); drawWhatIf(); drawImportance(); render();
 }
