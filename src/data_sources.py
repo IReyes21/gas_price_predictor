@@ -46,17 +46,58 @@ def _weekly_crude(daily: pd.DataFrame, week_dates) -> np.ndarray:
     return np.array(vals)
 
 
-def load_real(data_dir: Path, start: str = "2010-01-01") -> pd.DataFrame:
-    gas = _read_fred(data_dir / GAS_FILE)
-    wti = _read_fred(data_dir / WTI_FILE)
+def _pair(gas: pd.DataFrame, wti: pd.DataFrame, start: str) -> pd.DataFrame:
+    """Weekly pump price (date,value) + daily crude -> modeling frame [date, gas, crude]."""
     gas = gas[gas["date"] >= start].reset_index(drop=True)
     df = pd.DataFrame({"date": gas["date"], "gas": gas["value"]})
     df["crude"] = _weekly_crude(wti, df["date"])
     df = df.dropna().reset_index(drop=True)
-    last_gas = df["date"].iloc[-1]
-    df.attrs["crude_last_obs"] = wti["date"].iloc[-1]
-    df.attrs["crude_days_in_last_week"] = int(((wti["date"] > last_gas - pd.Timedelta(days=7)) & (wti["date"] <= last_gas)).sum())
+    if len(df):
+        last_gas = df["date"].iloc[-1]
+        df.attrs["crude_last_obs"] = wti["date"].iloc[-1]
+        df.attrs["crude_days_in_last_week"] = int(((wti["date"] > last_gas - pd.Timedelta(days=7)) & (wti["date"] <= last_gas)).sum())
     return df
+
+
+def load_real(data_dir: Path, start: str = "2010-01-01") -> pd.DataFrame:
+    return _pair(_read_fred(data_dir / GAS_FILE), _read_fred(data_dir / WTI_FILE), start)
+
+
+MIN_REGION_WEEKS = 120  # fewer overlapping weeks than this is too little to train and test on
+
+
+def load_regions(data_dir: Path, start: str = "2010-01-01"):
+    """State / regional weekly prices, modeled against the same national crude series.
+
+    Two ways to provide them (both optional, they can be mixed):
+      data/regions/<Name>.csv   one FRED/EIA-style CSV per area: date column, price column. File name = label.
+      data/regions.csv          one wide CSV: first column = date, every other column = one area (column name = label).
+    Returns (dict label -> modeling frame, list of skipped labels).
+    """
+    out, skipped = {}, []
+    wti_path = data_dir / WTI_FILE
+    if not wti_path.exists():
+        return out, skipped
+    wti = _read_fred(wti_path)
+    folder = data_dir / "regions"
+    found = {}
+    if folder.is_dir():
+        for p in sorted(folder.glob("*.csv")):
+            found[p.stem.replace("_", " ").strip()] = _read_fred(p)
+    wide = data_dir / "regions.csv"
+    if wide.exists():
+        raw = pd.read_csv(wide, na_values=[".", ""])
+        dates = pd.to_datetime(raw.iloc[:, 0])
+        for col in raw.columns[1:]:
+            s = pd.DataFrame({"date": dates, "value": pd.to_numeric(raw[col], errors="coerce")})
+            found[str(col).strip()] = s.dropna().sort_values("date").reset_index(drop=True)
+    for label, gas in found.items():
+        df = _pair(gas, wti, start)
+        if len(df) >= MIN_REGION_WEEKS:
+            out[label] = df
+        else:
+            skipped.append(label)
+    return out, skipped
 
 
 def _bump(n: int, centre: int, up: int, down: int, amp: float) -> np.ndarray:
@@ -108,5 +149,5 @@ def load_weekly(data_dir: Path, force_demo: bool = False, start: str = "2010-01-
     """Returns (dataframe[date, gas, crude], source_label, is_demo)."""
     have_real = (data_dir / GAS_FILE).exists() and (data_dir / WTI_FILE).exists()
     if have_real and not force_demo:
-        return load_real(data_dir, start), "Real data: EIA weekly gasoline (via FRED GASREGW) + FRED WTI (DCOILWTICO)", False
+        return load_real(data_dir, start), "Real data: EIA weekly gasoline (GASREGW) + WTI crude (DCOILWTICO)", False
     return make_demo(), "SYNTHETIC DEMO DATA (not real prices)", True

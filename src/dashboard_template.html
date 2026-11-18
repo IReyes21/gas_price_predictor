@@ -71,6 +71,15 @@
   td.num, th.num { text-align: right; font-variant-numeric: tabular-nums; }
   td.best { font-weight: 700; }
   tr.focus td { background: var(--wash); }
+  .areabtn { all: unset; cursor: pointer; font-weight: 600; border-bottom: 1px solid var(--axis); }
+  .areabtn:focus-visible { outline: 2px solid var(--blue); outline-offset: 2px; }
+  tr.areark { cursor: pointer; }
+  .range { font-size: 13px; color: var(--ink2); margin-top: 6px; }
+  .verdict { font-size: 14px; color: var(--ink); margin: 10px 0 4px; line-height: 1.5; }
+  .verdict strong { font-weight: 650; }
+  .agree-no { font-weight: 650; color: var(--ink); }
+  .agree-yes { color: var(--ink2); }
+  .subhead { font-size: 13px; font-weight: 650; color: var(--ink2); margin: 20px 0 8px; }
   .tablewrap { overflow-x: auto; }
   .tablewrap.scroll { max-height: 340px; overflow-y: auto; }
   .good { color: var(--ink); font-weight: 600; }
@@ -92,12 +101,13 @@
 <body>
 <main>
   <h1>Gas Price Predictor <span class="badge" id="badge"></span></h1>
-  <p class="sub">Next week's U.S. regular gasoline price, with a plain-English reason for every forecast. DS 305 final project prototype.</p>
+  <p class="sub" id="subtitle"></p>
   <div class="note" id="demoNote" role="note" hidden><b>Synthetic demo data.</b> The prices below are generated, not real, so the numbers only show how the prototype works. Put FRED's <code>GASREGW.csv</code> and <code>DCOILWTICO.csv</code> in <code>data/</code> and re-run <code>python src/gas_predictor.py</code> to use real prices.</div>
 
   <div id="warnNotes"></div>
 
   <div class="filters" role="group" aria-label="Scope everything below">
+    <div id="regionWrap" hidden><label class="lbl" for="regionSel">Area</label><select id="regionSel"></select></div>
     <div><label class="lbl" id="modelLbl">Model</label>
       <span class="seg" id="modelSeg" role="group" aria-labelledby="modelLbl"></span></div>
     <div><label class="lbl" for="weekSel">Week</label><select id="weekSel"></select></div>
@@ -111,6 +121,7 @@
         <div class="hero-price"><span id="heroPrice"></span><small> /gal</small></div>
         <div class="delta" id="heroDelta"></div>
         <div class="actual" id="heroActual"></div>
+        <div class="range" id="heroRange"></div>
       </div>
       <div>
         <div class="kicker" style="margin-bottom:8px">Why this number</div>
@@ -119,16 +130,25 @@
     </div>
   </section>
 
+  <section class="card" id="regionsCard" aria-labelledby="rgH" hidden>
+    <div class="card-head"><h2 id="rgH">States and regions at a glance</h2></div>
+    <p class="desc">Each area is modeled on its own weekly prices with the same inputs: its recent price moves, national crude oil, and season. Pick an area to open its full breakdown below.</p>
+    <div class="tablewrap"><table id="rgTable"></table></div>
+  </section>
+
   <section class="card" aria-labelledby="whyH">
     <div class="card-head"><h2 id="whyH">How the forecast is built</h2><button class="link" data-toggle="why">Table view</button></div>
     <p class="desc">The forecast starts at this week's pump price. Each group of inputs then pushes it up or down, in cents. The pushes add up exactly to the model's predicted change.</p>
     <div id="whyChart"></div>
     <div class="tableview" id="whyTable" hidden></div>
+    <div class="subhead">Do the two models agree on this week?</div>
+    <p class="desc" id="agNote" style="margin-bottom:8px"></p>
+    <div class="tablewrap"><table id="agTable"></table></div>
   </section>
 
   <section class="card" aria-labelledby="btH">
     <div class="card-head"><h2 id="btH">How the forecasts did on weeks the models never saw</h2><button class="link" data-toggle="bt">Table view</button></div>
-    <p class="desc">Each point is the price one week after the forecast was made. Click the chart (or pick a week above) to see why the model forecast that week. Click a legend item to hide a line.</p>
+    <p class="desc">Each point is the price one week after the forecast was made. Click the chart (or pick a week above) to see why the model forecast that week. The shaded band is the selected model's likely range (see the scorecard). Click a legend item to hide a line.</p>
     <div class="legend" id="btLegend"></div>
     <div id="btChart"></div>
     <div class="tableview" id="btTable" hidden></div>
@@ -139,12 +159,40 @@
     <p class="desc" id="scDesc"></p>
     <div class="tablewrap"><table id="scTable"></table></div>
     <p class="desc" id="criteria" style="margin-top:12px"></p>
+    <p class="desc" id="rangeNote" style="margin-top:6px"></p>
+  </section>
+
+  <section class="card" id="wfCard" aria-labelledby="wfH" hidden>
+    <div class="card-head"><h2 id="wfH">Does it hold up over time? Walk-forward test</h2><button class="link" data-toggle="wf">Table view</button></div>
+    <p class="desc" id="wfDesc"></p>
+    <div class="legend" id="wfLegend"></div>
+    <div id="wfChart"></div>
+    <div class="tableview" id="wfTable" hidden></div>
+    <div class="tablewrap" style="margin-top:12px"><table id="wfScore"></table></div>
+    <p class="desc" id="wfNote" style="margin-top:10px"></p>
   </section>
 
   <section class="card" aria-labelledby="wiH">
     <div class="card-head"><h2 id="wiH">What if crude oil jumps or drops this week?</h2></div>
     <p class="desc">The upcoming forecast re-run with this week's crude price shifted by the amount shown. This is what each model learned from history, not a promise about real shocks.</p>
     <div class="tablewrap"><table id="wiTable"></table></div>
+    <p class="desc" id="flatNote" style="margin-top:10px"></p>
+  </section>
+
+  <section class="card" aria-labelledby="asH">
+    <div class="card-head"><h2 id="asH">Do pump prices rise like rockets and fall like feathers?</h2><button class="link" data-toggle="as">Table view</button></div>
+    <p class="desc">A common claim is that pump prices jump quickly when crude oil rises but come down slowly when it falls. This tests it on this area's own history: how many cents per gallon the pump price has moved, week by week after a $1 per barrel crude rise, versus after a $1 fall.</p>
+    <div class="legend" id="asLegend"></div>
+    <div id="asChart"></div>
+    <div class="tableview" id="asTable" hidden></div>
+    <p class="verdict" id="asVerdict"></p>
+    <p class="desc" id="asNote"></p>
+  </section>
+
+  <section class="card" id="rxCard" aria-labelledby="rxH" hidden>
+    <div class="card-head"><h2 id="rxH">Which areas react to crude oil first?</h2></div>
+    <p class="desc">For each area: how much of a crude oil move has reached the pump within six weeks, and how quickly. Click a row to open that area. Differences between areas are often small and noisy, so treat the ranking as descriptive.</p>
+    <div class="tablewrap"><table id="rxTable"></table></div>
   </section>
 
   <section class="card" aria-labelledby="imH">
@@ -164,7 +212,7 @@
     <div class="how">
       <div><h3>The prediction</h3><p>Both models predict the <em>change</em> in the pump price one week ahead from 12 inputs: recent pump-price moves, crude oil moves over the last four weeks (converted to dollars per gallon), how far the pump markup over crude is from its 52-week norm, and season/holiday flags. Forecast = this week's price + predicted change.</p></div>
       <div><h3>The explanation</h3><p>Linear regression: each input's push is its coefficient times how far the input is from average (exact SHAP for a linear model). Random forest: each tree split's change in average prediction is credited to the input it used, then averaged across trees. Either way, base + pushes = the prediction.</p></div>
-      <div><h3>Limits</h3><p>Weekly data only. Supply disruptions, hurricanes, refinery outages and policy changes are not inputs, so the models cannot see them coming and will lag big spikes. Treat the forecast as a planning aid, not financial advice.</p></div>
+      <div><h3>Limits</h3><p>Weekly data only. Supply disruptions, hurricanes, refinery outages and policy changes are not inputs, so the models cannot see them coming and will lag big spikes. Likely ranges and the rockets-and-feathers and pass-through results are statistical estimates from past weeks; they can miss when prices behave differently from the past. Treat the forecast as a planning aid, not financial advice.</p></div>
     </div>
   </section>
   <footer id="foot"></footer>
@@ -173,14 +221,19 @@
 <script id="data" type="application/json">__DATA__</script>
 <script>
 "use strict";
-const D = JSON.parse(document.getElementById('data').textContent);
+const ALL = JSON.parse(document.getElementById('data').textContent);   // { default, order, regions: { name: payload } }
+let D, rows0, N;                                                         // selected area's payload, its explanation rows, index of the upcoming-forecast row
 const LIN = 'Linear regression', RF = 'Random forest', BASE = 'Last-week baseline', ACT = 'Actual price';
 const COLOR = { [LIN]: 'var(--blue)', [RF]: 'var(--orange)', [BASE]: 'var(--muted)', [ACT]: 'var(--ink)' };
 const NS = 'http://www.w3.org/2000/svg';
 const $ = (s, r = document) => r.querySelector(s);
-const rows0 = D.explanations[RF];
-const N = rows0.length - 1;                       // index of the upcoming-forecast row
-const state = { model: RF, idx: N, hidden: new Set() };
+const state = { model: RF, idx: 0, hidden: new Set(), region: ALL.default };
+function loadRegion(name) {
+  state.region = name; D = ALL.regions[name]; rows0 = D.explanations[RF]; N = rows0.length - 1; state.idx = N;
+}
+loadRegion(ALL.default);
+const MULTI = ALL.order.length > 1;
+const areaName = () => (state.region === ALL.default ? 'U.S.' : state.region);
 
 /* ---------- helpers ---------- */
 function h(tag, attrs = {}, kids = []) {
@@ -242,23 +295,37 @@ function buildFilters() {
     b.addEventListener('click', () => { state.model = m; render(); });
     seg.append(b);
   });
-  const sel = $('#weekSel');
-  const opts = [];
-  opts.push([N, 'Upcoming: forecast for week of ' + fmtDate(D.meta.forecast_week)]);
-  for (let i = N - 1; i >= 0; i--) opts.push([i, 'Back-test: made ' + fmtDate(rows0[i].date) + ' for week of ' + fmtDate(addDays(rows0[i].date, 7))]);
-  opts.forEach(([v, t]) => sel.append(h('option', { value: v, text: t })));
-  sel.addEventListener('change', () => { state.idx = +sel.value; render(); });
+  $('#weekSel').addEventListener('change', e => { state.idx = +e.target.value; render(); });
+  if (MULTI) {
+    $('#regionWrap').hidden = false;
+    const rs = $('#regionSel');
+    ALL.order.forEach(n => rs.append(h('option', { value: n, text: n })));
+    rs.addEventListener('change', e => switchRegion(e.target.value));
+  }
 }
+function buildWeekOptions() {
+  const sel = $('#weekSel'); sel.replaceChildren();
+  sel.append(h('option', { value: N, text: 'Upcoming: forecast for week of ' + fmtDate(D.meta.forecast_week) }));
+  for (let i = N - 1; i >= 0; i--) sel.append(h('option', { value: i, text: 'Back-test: made ' + fmtDate(rows0[i].date) + ' for week of ' + fmtDate(addDays(rows0[i].date, 7)) }));
+}
+function switchRegion(name) { loadRegion(name); refreshAll(); }
 
 /* ---------- hero ---------- */
 function drawHero() {
   const r = cur(), up = state.idx === N, chg = (r.predicted_next - r.price_now) * 100;
-  $('#heroKicker').textContent = (up ? 'Upcoming forecast' : 'Back-test (forecast made ' + fmtDate(r.date) + ')') + ' · ' + state.model;
+  $('#heroKicker').textContent = (MULTI ? state.region + ' · ' : '') + (up ? 'Upcoming forecast' : 'Back-test (forecast made ' + fmtDate(r.date) + ')') + ' · ' + state.model;
   $('#heroH').textContent = 'Week of ' + fmtDate(addDays(r.date, 7));
   $('#heroPrice').textContent = usd(r.predicted_next);
   const d = $('#heroDelta'); d.textContent = arrow(chg) + ' ' + Math.abs(chg).toFixed(1) + '¢ vs. the ' + usd(r.price_now) + ' price when forecast was made';
   const a = $('#heroActual');
   a.textContent = r.actual_next == null ? 'Actual price not known yet.' : 'Actual: ' + usd(r.actual_next) + ' (off by ' + Math.abs((r.predicted_next - r.actual_next) * 100).toFixed(1) + '¢)';
+  const rg = $('#heroRange'), iv = D.intervals;
+  if (iv && iv.half_test[state.model]) {
+    const hw = up ? iv.half_forecast[state.model] : iv.half_test[state.model][state.idx];
+    const lo = r.predicted_next - hw, hi = r.predicted_next + hw;
+    rg.textContent = 'Likely range ' + usd(lo) + ' to ' + usd(hi) + ' (about ' + Math.round(iv.level * 100) + '% of the time)' +
+      (r.actual_next == null ? '' : r.actual_next >= lo && r.actual_next <= hi ? ': the actual price landed inside it.' : ': the actual price landed outside it.');
+  } else rg.textContent = '';
   const ul = $('#drivers'); ul.replaceChildren();
   if (!r.drivers.length) ul.append(h('li', {}, [h('span'), h('span', { class: 'why', text: 'No single factor stands out; the model sees a flat week.' })]));
   r.drivers.forEach(x => ul.append(h('li', {}, [
@@ -316,6 +383,23 @@ function drawWhy() {
   for (const g of Object.keys(D.feature_groups)) groupFeatures(r, g).forEach(f => tb.append(h('tr', {}, [h('td', { text: g }), h('td', { text: f.label }), h('td', { class: 'num', text: featFmt(f.feature, f.value) }), h('td', { class: 'num', text: cents(f.cents, 2) })])));
   tb.append(h('tr', {}, [h('td', { text: 'Net change', class: 'best' }), h('td', { text: usd(r.price_now) + ' → ' + usd(r.predicted_next) }), h('td'), h('td', { class: 'num best', text: cents(net, 2) })]));
   t.append(tb); const wrap = h('div', { class: 'tablewrap' }, [t]); $('#whyTable').replaceChildren(wrap);
+  drawAgree();
+}
+function drawAgree() {
+  const a = D.explanations[LIN][state.idx], b = D.explanations[RF][state.idx];
+  const na = (a.predicted_next - a.price_now) * 100, nb = (b.predicted_next - b.price_now) * 100;
+  const same = (x, y) => (x >= 0) === (y >= 0) || (Math.abs(x) < 0.5 && Math.abs(y) < 0.5);
+  const groups = Object.keys(a.groups_cents);
+  const agreeN = groups.filter(g => same(a.groups_cents[g], b.groups_cents[g])).length;
+  const dir = v => (v >= 0 ? 'a rise' : 'a drop');
+  $('#agNote').textContent = (same(na, nb) ? 'Both models forecast ' + dir(na) + ' (' + cents(na) + ' linear, ' + cents(nb) + ' forest). ' : 'The models disagree on direction: the linear model forecasts ' + dir(na) + ' (' + cents(na) + ') and the forest ' + dir(nb) + ' (' + cents(nb) + '). ') +
+    'They point the same way on ' + agreeN + ' of ' + groups.length + ' input groups. Where they differ, treat that part of the explanation with extra caution.';
+  const t = h('table');
+  t.append(h('thead', {}, [h('tr', {}, ['Input group', LIN, RF, 'Same direction?'].map((x, i) => h('th', { class: i ? 'num' : '', text: x })))]));
+  const tb = h('tbody');
+  groups.forEach(g => { const ok = same(a.groups_cents[g], b.groups_cents[g]); tb.append(h('tr', {}, [h('td', { text: g }), h('td', { class: 'num', text: cents(a.groups_cents[g]) }), h('td', { class: 'num', text: cents(b.groups_cents[g]) }), h('td', { class: 'num ' + (ok ? 'agree-yes' : 'agree-no'), text: ok ? 'Yes' : 'No' })])); });
+  tb.append(h('tr', {}, [h('td', { class: 'best', text: 'Net change' }), h('td', { class: 'num best', text: cents(na) }), h('td', { class: 'num best', text: cents(nb) }), h('td', { class: 'num ' + (same(na, nb) ? 'agree-yes' : 'agree-no'), text: same(na, nb) ? 'Yes' : 'No' })]));
+  t.append(tb); $('#agTable').replaceWith(Object.assign(t, { id: 'agTable' }));
 }
 
 /* ---------- back-test line chart ---------- */
@@ -344,11 +428,21 @@ function drawBacktest() {
       s('text', { x: X(i), y: Ht - 8, 'text-anchor': 'middle', 'font-size': 11, class: 't-muted', text: parse(d).toLocaleDateString('en-US', { month: 'short', year: 'numeric' }) }, svg);
     }
   });
+  const IV = D.intervals;
+  if (IV && IV.half_test[state.model] && !state.hidden.has(state.model)) {
+    const hw = IV.half_test[state.model], mv = T[state.model], cl = v => Math.max(y0, Math.min(y1, v));
+    const upP = mv.map((p, i) => X(i) + ',' + Y(cl(p + hw[i]))), dnP = mv.map((p, i) => X(i) + ',' + Y(cl(p - hw[i]))).reverse();
+    s('path', { d: 'M' + upP.join(' L') + ' L' + dnP.join(' L') + ' Z', fill: COLOR[state.model], 'fill-opacity': 0.14, stroke: 'none' }, svg);
+  }
   order.forEach(([k, v]) => {
     if (state.hidden.has(k)) return;
     s('path', { d: v.map((p, i) => (i ? 'L' : 'M') + X(i) + ',' + Y(p)).join(' '), fill: 'none', stroke: COLOR[k], 'stroke-width': 2, 'stroke-linejoin': 'round', 'stroke-linecap': 'round' }, svg);
   });
   // upcoming forecast point (selected model)
+  if (IV && IV.half_forecast[state.model] != null) {
+    const hwf = IV.half_forecast[state.model], cl2 = v => Math.max(y0, Math.min(y1, v));
+    s('line', { x1: X(n), x2: X(n), y1: Y(cl2(fc + hwf)), y2: Y(cl2(fc - hwf)), stroke: COLOR[state.model], 'stroke-width': 2, 'stroke-opacity': 0.55 }, svg);
+  }
   s('circle', { cx: X(n), cy: Y(fc), r: 5, fill: COLOR[state.model], stroke: 'var(--surface)', 'stroke-width': 2 }, svg);
   s('text', { x: X(n) - 10, y: Y(fc) - 16, 'text-anchor': 'end', 'font-size': 12, 'font-weight': 600, class: 't-ink', style: 'paint-order:stroke;stroke:var(--surface);stroke-width:5px;stroke-linejoin:round', text: 'Next week ' + usd(fc) }, svg);
   // selected week marker
@@ -413,6 +507,9 @@ function drawScore() {
   });
   t.append(tb); $('#scTable').replaceWith(Object.assign(t, { id: 'scTable' }));
   const win = [LIN, RF].map(k => { const m = M.find(x => x.model === k); return k + (m.MAE < base.MAE && m.RMSE < base.RMSE ? ' beats' : ' does not beat') + ' the baseline on MAE and RMSE'; });
+  const iv = D.intervals;
+  $('#rangeNote').textContent = iv ? 'Likely ranges: each forecast comes with a range built to contain the real price about ' + Math.round(iv.level * 100) + '% of the time. On these held-out weeks the linear model\u2019s range did ' + Math.round(iv.coverage[LIN] * 100) + '% of the time and the forest\u2019s ' + Math.round(iv.coverage[RF] * 100) +
+    '%. The range is calibrated on earlier weeks and scales with recent price volatility, so it is typically about \u00b1' + (iv.typical_half[LIN] * 100).toFixed(0) + '\u00a2 and widens when prices get jumpy.' : '';
   $('#criteria').textContent = 'Success criterion from the proposal: ' + win.join('; ') + '. Big weekly moves are hardest for every model, as the proposal expected.';
 }
 
@@ -426,6 +523,14 @@ function drawWhatIf() {
     tb.append(h('tr', {}, [h('td', { text: sc.crude_shock === 0 ? 'No change (the forecast above)' : sgn(sc.crude_shock) + '$' + Math.abs(sc.crude_shock) + ' per barrel' }), h('td', { class: 'num', text: '$' + sc.crude_now.toFixed(2) + '/bbl' }), cell(LIN), cell(RF)]));
   });
   t.append(tb); $('#wiTable').replaceWith(Object.assign(t, { id: 'wiTable' }));
+  const fcr = D.flat_crude, parts = [];
+  [LIN, RF].forEach(k => {
+    const r = fcr && fcr[k];
+    if (!r) parts.push(k + ': no crude move within about $40 per barrel either way would make it forecast an unchanged pump price.');
+    else if (Math.abs(r.shift) < 0.5) parts.push(k + ': already forecasts a roughly unchanged price.');
+    else parts.push(k + ': this week\u2019s crude would need to be about $' + Math.abs(r.shift).toFixed(0) + ' per barrel ' + (r.shift > 0 ? 'higher' : 'lower') + ' (around $' + r.crude_then.toFixed(0) + '/bbl) for an unchanged price.');
+  });
+  $('#flatNote').textContent = 'Flipped around, what crude price would make the forecast flat? ' + parts.join(' ') + ' (Approximate: the forest moves in steps.)';
 }
 
 /* ---------- importance ---------- */
@@ -472,22 +577,189 @@ function drawImportance() {
 /* ---------- wiring ---------- */
 document.querySelectorAll('[data-toggle]').forEach(btn => btn.addEventListener('click', () => {
   const k = btn.dataset.toggle, tv = $('#' + k + 'Table'), ch = $('#' + k + 'Chart'), showTable = tv.hidden;
-  tv.hidden = !showTable; ch.hidden = showTable; if (k === 'bt') $('#btLegend').hidden = showTable; if (k === 'im') $('#imLegend').hidden = showTable;
+  tv.hidden = !showTable; ch.hidden = showTable; const lgd = $('#' + k + 'Legend'); if (lgd) lgd.hidden = showTable;
   btn.textContent = showTable ? 'Chart view' : 'Table view';
 }));
 function render() {
   document.querySelectorAll('#modelSeg button').forEach((b, i) => b.setAttribute('aria-pressed', String([RF, LIN][i] === state.model)));
   $('#weekSel').value = state.idx;
-  hideTip(); drawHero(); drawWhy(); drawBacktest();
+  hideTip(); drawHero(); drawRegions(); drawWhy(); drawBacktest(); drawReaction();
 }
-function init() {
+function applyMeta() {
+  $('#subtitle').textContent = "Next week's " + areaName() + ' regular gasoline price, with a plain-English reason for every forecast. DS 305 final project prototype.';
   $('#badge').textContent = D.meta.is_demo ? 'demo data' : 'real data';
   $('#demoNote').hidden = !D.meta.is_demo;
-  (D.meta.warnings || []).forEach(w => $('#warnNotes').append(h('div', { class: 'note', role: 'note' }, [h('b', { text: 'Heads up: ' }), document.createTextNode(w)])));
+  const wn = $('#warnNotes'); wn.replaceChildren();
+  (D.meta.warnings || []).forEach(w => wn.append(h('div', { class: 'note', role: 'note' }, [h('b', { text: 'Heads up: ' }), document.createTextNode(w)])));
   $('#foot').textContent = D.meta.source + ' · last observed week ' + fmtDate(D.meta.last_observed_week) + ' · generated ' + D.meta.generated;
-  buildFilters(); drawScore(); drawWhatIf(); drawImportance(); render();
 }
-init();
+
+/* ---------- generic line chart (hover, keyboard, table view) ---------- */
+function lineChart(o) {
+  const W = 760, H = 290, L = 58, R = 24, T = 14, B = 34, pw = W - L - R, ph = H - T - B, n = o.xs.length;
+  let vals = o.series.flatMap(sr => [...sr.values, ...(sr.lo || []), ...(sr.hi || [])]);
+  if (o.ref) vals.push(o.ref.value);
+  if (o.zero) vals.push(0);
+  const lo = Math.min(...vals), hi = Math.max(...vals), pad = (hi - lo || 1) * 0.08;
+  const ticks = niceTicks(lo - pad, hi + pad, 5);
+  const y0 = Math.min(ticks[0], lo - pad), y1 = Math.max(ticks[ticks.length - 1], hi + pad);
+  const X = i => L + (n > 1 ? i / (n - 1) : 0.5) * pw, Y = v => T + (1 - (v - y0) / (y1 - y0)) * ph;
+  const svg = s('svg', { viewBox: `0 0 ${W} ${H}`, role: 'img', 'aria-label': o.aria });
+  ticks.forEach(tk => {
+    s('line', { x1: L, x2: W - R, y1: Y(tk), y2: Y(tk), stroke: 'var(--grid)', 'stroke-width': 1 }, svg);
+    s('text', { x: L - 8, y: Y(tk) + 4, 'text-anchor': 'end', 'font-size': 11, class: 't-muted', text: o.yfmt(tk) }, svg);
+  });
+  s('line', { x1: L, x2: W - R, y1: Y(Math.max(y0, Math.min(0, y1))), y2: Y(Math.max(y0, Math.min(0, y1))), stroke: 'var(--axis)', 'stroke-width': 1 }, svg);
+  for (let i = 0; i < n; i++) { const lab = o.xTick(i); if (lab) s('text', { x: X(i), y: H - 10, 'text-anchor': 'middle', 'font-size': 11, class: 't-muted', text: lab }, svg); }
+  if (o.ref) {
+    s('line', { x1: L, x2: W - R, y1: Y(o.ref.value), y2: Y(o.ref.value), stroke: 'var(--muted)', 'stroke-width': 1, 'stroke-dasharray': '5 4' }, svg);
+    s('text', { x: W - R - 4, y: Y(o.ref.value) - 6, 'text-anchor': 'end', 'font-size': 11, class: 't-muted', text: o.ref.label }, svg);
+  }
+  o.series.forEach(sr => {
+    if (sr.lo) {
+      const up = sr.hi.map((v, i) => X(i) + ',' + Y(v)), dn = sr.lo.map((v, i) => X(i) + ',' + Y(v)).reverse();
+      s('path', { d: 'M' + up.join(' L') + ' L' + dn.join(' L') + ' Z', fill: sr.color, 'fill-opacity': 0.12, stroke: 'none' }, svg);
+    }
+  });
+  o.series.forEach(sr => {
+    s('path', { d: sr.values.map((v, i) => (i ? 'L' : 'M') + X(i) + ',' + Y(v)).join(' '), fill: 'none', stroke: sr.color, 'stroke-width': 2, 'stroke-linejoin': 'round', 'stroke-linecap': 'round' }, svg);
+    if (n <= 12) sr.values.forEach((v, i) => s('circle', { cx: X(i), cy: Y(v), r: 3.5, fill: sr.color, stroke: 'var(--surface)', 'stroke-width': 1.5 }, svg));
+  });
+  const cross = s('line', { y1: T, y2: T + ph, stroke: 'var(--muted)', 'stroke-width': 1, visibility: 'hidden' }, svg);
+  const hit = s('rect', { x: L, y: T, width: pw, height: ph, fill: 'rgba(0,0,0,0)', tabindex: 0, 'aria-label': o.aria + ' Use left and right arrow keys to read values.' }, svg);
+  const at = (i, cx, cy) => {
+    i = Math.max(0, Math.min(n - 1, i)); cross.setAttribute('x1', X(i)); cross.setAttribute('x2', X(i)); cross.setAttribute('visibility', 'visible');
+    showTip(o.tipTitle(i), o.series.map(sr => ({ key: sr.color, value: o.valFmt(sr.values[i]), label: sr.name })), cx, cy); return i;
+  };
+  const idxFrom = e => { const b = hit.getBoundingClientRect(); return Math.round(((e.clientX - b.left) / b.width) * (n - 1)); };
+  hit.addEventListener('pointermove', e => at(idxFrom(e), e.clientX, e.clientY));
+  hit.addEventListener('pointerleave', () => { hideTip(); cross.setAttribute('visibility', 'hidden'); });
+  let kb = n - 1;
+  hit.addEventListener('keydown', e => { if (e.key === 'ArrowLeft' || e.key === 'ArrowRight') { e.preventDefault(); kb = Math.max(0, Math.min(n - 1, kb + (e.key === 'ArrowRight' ? 1 : -1))); const b = hit.getBoundingClientRect(); at(kb, b.left + (kb / Math.max(n - 1, 1)) * b.width, b.top); } });
+  hit.addEventListener('blur', hideTip);
+  const tbl = h('table');
+  tbl.append(h('thead', {}, [h('tr', {}, [o.xHead, ...o.series.map(sr => sr.name)].map((x, i) => h('th', { class: i ? 'num' : '', text: x })))]));
+  const tb = h('tbody');
+  for (let i = n - 1; i >= 0; i--) tb.append(h('tr', {}, [h('td', { text: o.xs[i] }), ...o.series.map(sr => h('td', { class: 'num', text: o.valFmt(sr.values[i]) }))]));
+  tbl.append(tb);
+  return { svg, table: h('div', { class: 'tablewrap' + (n > 14 ? ' scroll' : '') }, [tbl]) };
+}
+function staticLegend(el, items) {
+  el.replaceChildren();
+  items.forEach(([name, color]) => { const sw = h('span', { class: 'sw' }); sw.style.background = color; el.append(h('span', { class: 'leg static' }, [sw, document.createTextNode(name)])); });
+}
+const pFmt = p => (p < 0.001 ? '< 0.001' : p < 0.01 ? p.toFixed(3) : p.toFixed(2));
+
+/* ---------- walk-forward ---------- */
+function drawWalkForward() {
+  const W = D.walkforward, card = $('#wfCard'); card.hidden = !W; if (!W) return;
+  $('#wfDesc').textContent = 'The scorecard above trains once and tests on the weeks that follow. A real forecaster would retrain as new weeks arrive, so this does that: about every ' + W.step_weeks + ' weeks (' + W.refits + ' times) each model is retrained on only the weeks known so far and forecasts the next block. The chart shows each model’s average error over the previous ' + W.window + ' weeks.';
+  const xs = W.dates, pick = k => W.rolling_mae[k].map(v => v * 100), step = Math.max(1, Math.round(xs.length / 5));
+  const ch = lineChart({ xs: xs.map(fmtDate), xHead: 'Week of', aria: 'Line chart of each model’s rolling average error in cents over the held-out weeks.',
+    series: [{ name: BASE, color: COLOR[BASE], values: pick(BASE) }, { name: LIN, color: COLOR[LIN], values: pick(LIN) }, { name: RF, color: COLOR[RF], values: pick(RF) }],
+    yfmt: v => v.toFixed(0) + '¢', valFmt: v => v.toFixed(1) + '¢', tipTitle: i => W.window + ' weeks ending ' + fmtDate(xs[i]),
+    xTick: i => (i % step === 0 ? parse(xs[i]).toLocaleDateString('en-US', { month: 'short', year: 'numeric' }) : null) });
+  $('#wfChart').replaceChildren(ch.svg); $('#wfTable').replaceChildren(ch.table);
+  staticLegend($('#wfLegend'), [[BASE, COLOR[BASE]], [LIN, COLOR[LIN]], [RF, COLOR[RF]]]);
+  const base = W.metrics.find(m => m.model === BASE), single = k => D.metrics.find(m => m.model === k);
+  const tbl = h('table');
+  tbl.append(h('thead', {}, [h('tr', {}, ['Model', 'Walk-forward MAE', 'MAE vs baseline', 'Right direction', 'Single-split MAE'].map((x, i) => h('th', { class: i ? 'num' : '', text: x })))]));
+  const tb = h('tbody');
+  W.metrics.forEach(m => tb.append(h('tr', {}, [h('td', { text: m.model }), h('td', { class: 'num', text: (m.MAE * 100).toFixed(2) + '¢' }),
+    h('td', { class: 'num', text: m.model === BASE ? '—' : Math.round((1 - m.MAE / base.MAE) * 100) + '% ' + (m.MAE <= base.MAE ? 'lower' : 'higher') }),
+    h('td', { class: 'num', text: m.direction_hit_rate == null ? '—' : Math.round(m.direction_hit_rate * 100) + '%' }), h('td', { class: 'num', text: (single(m.model).MAE * 100).toFixed(2) + '¢' })])));
+  tbl.append(tb); $('#wfScore').replaceWith(Object.assign(tbl, { id: 'wfScore' }));
+  const wins = [LIN, RF].filter(k => W.metrics.find(m => m.model === k).MAE < base.MAE);
+  $('#wfNote').textContent = (wins.length === 2 ? 'Both models still beat the last-week baseline when retrained as they go, so the result does not depend on one lucky split.' : wins.length === 1 ? wins[0] + ' beats the last-week baseline when retrained as it goes; the other does not, so the single-split win is less certain than it looked.' : 'Neither model beats the last-week baseline when retrained as it goes, so treat the single-split result with caution.') +
+    ' Spikes in the chart mark weeks when prices moved sharply and every model, including the baseline, struggled.';
+}
+
+/* ---------- rockets and feathers ---------- */
+function drawAsym() {
+  const A = D.asymmetry, P = D.passthrough, v = $('#asVerdict'), nt = $('#asNote');
+  if (!A) { $('#asChart').replaceChildren(); $('#asTable').replaceChildren(); $('#asLegend').replaceChildren(); v.textContent = 'Not enough weeks of data with crude oil moves to run this test for ' + areaName() + ' (it needs roughly 85 or more).'; nt.textContent = ''; return; }
+  const L = A.lags.length - 1, band = (m, se) => ({ lo: m.map((x, i) => x - 1.96 * se[i]), hi: m.map((x, i) => x + 1.96 * se[i]) });
+  const rb = band(A.rise, A.rise_se), fb = band(A.fall, A.fall_se);
+  const ch = lineChart({ xs: A.lags.map(k => (k ? k + (k === 1 ? ' week' : ' weeks') + ' later' : 'Same week')), xHead: 'After the crude move', aria: 'Cumulative pump price response in cents per gallon after a one dollar per barrel crude oil rise versus fall, by weeks since the move.',
+    series: [{ name: 'After a crude RISE', color: 'var(--up)', values: A.rise, lo: rb.lo, hi: rb.hi }, { name: 'After a crude FALL', color: 'var(--down)', values: A.fall, lo: fb.lo, hi: fb.hi }],
+    yfmt: x => x.toFixed(1) + '¢', valFmt: x => x.toFixed(2) + '¢', zero: true, ref: { value: A.full_pass_through, label: 'Crude cost alone: ' + A.full_pass_through.toFixed(1) + '¢' },
+    tipTitle: i => (i ? i + ' week' + (i > 1 ? 's' : '') + ' after the move' : 'Same week as the move') + ' (cents per gallon per $1/bbl)', xTick: i => (i ? '+' + i + 'w' : 'Same wk') });
+  $('#asChart').replaceChildren(ch.svg); $('#asTable').replaceChildren(ch.table);
+  staticLegend($('#asLegend'), [['After a $1/bbl crude RISE (shaded: 95% range)', 'var(--up)'], ['After a $1/bbl crude FALL', 'var(--down)']]);
+  const r = A.rise[L], f = A.fall[L], d = A.diff[L], p = A.p_value, k = A.speed_lag, tot = A.verdict;
+  const speedText = k == null ? '' : ' The difference is in speed: ' + (k === 0 ? 'in the same week as the crude move' : 'within ' + k + ' week' + (k > 1 ? 's' : '')) + ', the pump price had followed a $1 per barrel ' +
+    (A.speed_dir === 'rise_faster' ? 'rise by ' + A.rise[k].toFixed(1) + '¢ but a fall by only ' + A.fall[k].toFixed(1) + '¢' : 'fall by ' + A.fall[k].toFixed(1) + '¢ but a rise by only ' + A.rise[k].toFixed(1) + '¢') +
+    ' (p = ' + pFmt(A.diff_p[k]) + ', judged against a stricter cutoff of ' + A.speed_bar.toFixed(3) + ' because ' + A.lags.length + ' time points were checked).';
+  const totText = 'Six weeks after a $1 per barrel crude move, the pump price had moved about ' + r.toFixed(1) + '¢ after a rise and ' + f.toFixed(1) + '¢ after a fall';
+  let head, body;
+  if (tot === 'no_clear_difference' && k != null) {
+    head = A.speed_dir === 'rise_faster' ? 'Faster on the way up, but falls catch up. ' : 'Faster on the way down, but rises catch up. ';
+    body = totText + ': a ' + Math.abs(d).toFixed(1) + '¢ gap that is within normal noise (p = ' + pFmt(p) + '), so the total reaches about the same place.' + speedText;
+  } else if (tot === 'no_clear_difference') {
+    head = 'No clear difference in this data. ';
+    body = totText + '. That ' + Math.abs(d).toFixed(1) + '¢ gap is within normal noise (p = ' + pFmt(p) + '), so this data cannot say prices fall more slowly than they rise.';
+  } else {
+    head = tot === 'rockets_feathers' ? (k != null ? 'Yes, in speed and in total. ' : 'Yes, in this data. ') : 'The opposite, in this data. ';
+    body = totText + ', a ' + Math.abs(d).toFixed(1) + '¢ gap that is unlikely to be chance (p = ' + pFmt(p) + ').' + (tot === 'reverse' ? ' Pump prices followed falls more than rises.' : ' Pump prices followed rises more fully than falls.') + speedText;
+  }
+  v.replaceChildren(h('strong', { text: head }), document.createTextNode(body));
+  const pt = P && P.reliable ? ' Overall, a $1/bbl crude move reaches the pump as about ' + P.total.toFixed(1) + '¢ within six weeks (' + Math.round(P.total_pct_of_full) + '% of that benchmark' + (P.total_pct_of_full > 105 ? ', which can exceed 100% because pump margins and costs also move with crude in volatile stretches' : '') + '), and about ' + Math.round(P.same_week_share * 100) + '% of it arrives in the same week.' : '';
+  nt.textContent = 'Benchmark: if the pump passed on only the crude cost, $1 per barrel would be ' + A.full_pass_through.toFixed(1) + '¢ per gallon (a barrel is 42 gallons). Based on ' + A.n_weeks + ' weeks of ' + areaName() + ' price changes, with a standard correction for week-to-week correlation. The p-value is approximate: read it as a screening result, not proof.' + pt;
+}
+
+/* ---------- which areas react first ---------- */
+function drawReaction() {
+  const card = $('#rxCard'); card.hidden = !MULTI; if (!MULTI) return;
+  const rows = ALL.order.map(n => ({ n, P: ALL.regions[n].passthrough })).filter(x => x.P);
+  rows.sort((a, b) => (b.P.reliable - a.P.reliable) || ((b.P.same_week_share ?? 0) - (a.P.same_week_share ?? 0)));
+  const wk = v => (v == null ? '—' : v === 0 ? 'same week' : v + (v === 1 ? ' week' : ' weeks'));
+  const t = h('table', { id: 'rxTable' });
+  t.append(h('thead', {}, [h('tr', {}, ['Area', 'Reaches pump in 6 weeks', 'Share of crude-cost benchmark', 'Arrives same week', 'Half arrived by', '80% arrived by'].map((x, i) => h('th', { class: i ? 'num' : '', text: x })))]));
+  const tb = h('tbody');
+  rows.forEach(({ n, P }) => {
+    const btn = h('button', { type: 'button', class: 'areabtn', text: n, 'aria-current': String(n === state.region) });
+    btn.addEventListener('click', e => { e.stopPropagation(); $('#regionSel').value = n; switchRegion(n); });
+    const tr = h('tr', { class: 'areark' + (n === state.region ? ' focus' : '') }, [h('td', {}, [btn]),
+      h('td', { class: 'num', text: P.total.toFixed(2) + '¢ per $1/bbl' }), h('td', { class: 'num', text: Math.round(P.total_pct_of_full) + '%' }),
+      h('td', { class: 'num', text: P.reliable ? Math.round(P.same_week_share * 100) + '%' : '—' }), h('td', { class: 'num', text: P.reliable ? wk(P.weeks_to_half) : 'not enough signal' }), h('td', { class: 'num', text: P.reliable ? wk(P.weeks_to_80) : '—' })]);
+    tr.addEventListener('click', () => btn.click()); tb.append(tr);
+  });
+  t.append(tb); $('#rxTable').replaceWith(t);
+}
+
+/* ---------- states / regions at a glance ---------- */
+function drawRegions() {
+  const card = $('#regionsCard'); card.hidden = !MULTI; if (!MULTI) return;
+  const us = ALL.regions[ALL.default], mdl = state.model;
+  const cols = ['Area', 'Price now', 'vs. U.S.', 'Forecast', 'Change', 'Error vs. baseline', 'For week of'];
+  const tbl = h('table', { id: 'rgTable' });
+  tbl.append(h('thead', {}, [h('tr', {}, cols.map((c, i) => h('th', { class: i ? 'num' : '', text: c })))]));
+  const tb = h('tbody');
+  ALL.order.forEach(name => {
+    const P = ALL.regions[name], rows = P.explanations[mdl], r = rows[rows.length - 1];
+    const chg = (r.predicted_next - r.price_now) * 100;
+    const base = P.metrics.find(m => m.model === BASE), m = P.metrics.find(x => x.model === mdl);
+    const imp = Math.round((1 - m.MAE / base.MAE) * 100);
+    const comparable = name !== ALL.default && P.meta.last_observed_week === us.meta.last_observed_week;
+    const btn = h('button', { type: 'button', class: 'areabtn', text: name, 'aria-current': String(name === state.region) });
+    btn.addEventListener('click', e => { e.stopPropagation(); $('#regionSel').value = name; switchRegion(name); });
+    const tr = h('tr', { class: 'areark' + (name === state.region ? ' focus' : '') }, [
+      h('td', {}, [btn]),
+      h('td', { class: 'num', text: usd(r.price_now) }),
+      h('td', { class: 'num', text: comparable ? cents((r.price_now - us.meta.current_price) * 100, 0) : '—' }),
+      h('td', { class: 'num', text: usd(r.predicted_next) }),
+      h('td', { class: 'num', text: (chg >= 0 ? '↑ ' : '↓ ') + Math.abs(chg).toFixed(1) + '¢' }),
+      h('td', { class: 'num', text: Math.abs(imp) + '% ' + (imp >= 0 ? 'lower' : 'higher') }),
+      h('td', { class: 'num', text: fmtDate(P.meta.forecast_week) }),
+    ]);
+    tr.addEventListener('click', () => btn.click());
+    tb.append(tr);
+  });
+  tbl.append(tb); $('#rgTable').replaceWith(tbl);
+}
+function refreshAll() { applyMeta(); buildWeekOptions(); drawScore(); drawWalkForward(); drawWhatIf(); drawAsym(); drawImportance(); render(); }
+buildFilters();
+refreshAll();
 </script>
 </body>
 </html>
