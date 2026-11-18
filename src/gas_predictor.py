@@ -364,12 +364,18 @@ def main():
     ap.add_argument("--no-figures", action="store_true")
     ap.add_argument("--no-walkforward", action="store_true", help="skip the rolling-retrain back-test (saves time on many areas)")
     ap.add_argument("--fetch-eia", action="store_true",
-                    help="first download fresh data from the EIA API (U.S. gas, WTI crude, states/regions) into the data folder")
+                    help="first download fresh data from the EIA API (U.S. gas, WTI crude, states, cities) into the data folder")
     ap.add_argument("--eia-key", default=None, help="EIA API key (or set the EIA_API_KEY environment variable)")
     ap.add_argument("--eia-areas", default=DEFAULT_AREAS,
                     help='areas to download: "states", "regions", "metros", "all", or names, comma separated '
                          '(default: "%s"; EIA publishes only 9 states weekly)' % DEFAULT_AREAS)
+    ap.add_argument("--open", action="store_true", help="open the finished dashboard in your browser")
     args = ap.parse_args()
+    for stream in (sys.stdout, sys.stderr):   # Windows consoles default to cp1252/cp437; never crash on a symbol
+        try:
+            stream.reconfigure(encoding="utf-8", errors="replace")
+        except Exception:
+            pass
     args.out_dir.mkdir(parents=True, exist_ok=True)
 
     # ---- optional: refresh the data folder from the EIA API ---------------------------
@@ -385,7 +391,9 @@ def main():
     df, source, is_demo = load_weekly(args.data_dir, args.demo)
     regions, skipped = ({}, []) if is_demo else load_regions(args.data_dir)
     results = {US: analyze(df, args, US, source, is_demo, data_warnings(df, is_demo))}
-    for label, rdf in regions.items():
+    print(f"Modeling {len(regions) + 1} areas (about 10-20 seconds each) ...", flush=True)
+    for i, (label, rdf) in enumerate(regions.items(), 1):
+        print(f"  [{i}/{len(regions)}] {label}", flush=True)
         results[label] = analyze(rdf, args, label, "Real data: " + label + " weekly retail gasoline (EIA) + WTI crude (DCOILWTICO)", False, data_warnings(rdf, False))
 
     us = results[US]
@@ -421,13 +429,16 @@ def main():
     latest_json = latest(us)
     if regions:
         latest_json["regions"] = {label: latest(r) for label, r in results.items() if label != US}
-    (args.out_dir / "latest_forecast.json").write_text(json.dumps(latest_json, indent=2))
+    (args.out_dir / "latest_forecast.json").write_text(json.dumps(latest_json, indent=2), encoding="utf-8")
 
     bundle = {"default": US, "order": list(results), "regions": {label: r["payload"] for label, r in results.items()}}
-    (args.out_dir / "dashboard_data.json").write_text(json.dumps(bundle))
+    (args.out_dir / "dashboard_data.json").write_text(json.dumps(bundle), encoding="utf-8")
     tpl = Path(__file__).resolve().parent / "dashboard_template.html"
-    if tpl.exists():
-        (args.out_dir / "dashboard.html").write_text(tpl.read_text().replace("__DATA__", json.dumps(bundle)))
+    if not tpl.exists():
+        sys.exit(f"Dashboard template not found: {tpl}\nCopy dashboard_template.html into the src folder next to gas_predictor.py and run again.")
+    dash = args.out_dir / "dashboard.html"
+    dash.write_text(tpl.read_text(encoding="utf-8").replace("__DATA__", json.dumps(bundle)), encoding="utf-8")
+    print(f"Dashboard written: {dash.resolve()}  ({dash.stat().st_size / 1e6:.1f} MB, {len(results)} areas)", flush=True)
 
     if not args.no_figures:
         from plots import make_figures  # noqa: E402
@@ -478,6 +489,9 @@ def main():
             print(f"  skipped '{s}': fewer than 120 weeks overlap with the crude file")
         print("  (per-area range coverage, walk-forward errors and pass-through are in outputs/extras_by_area.csv)")
     print(f"\nWrote {args.out_dir}/")
+    if args.open:
+        import webbrowser
+        webbrowser.open(dash.resolve().as_uri())
 
 
 if __name__ == "__main__":

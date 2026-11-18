@@ -3,7 +3,7 @@
 What it writes (same CSV shape the FRED downloads use, so nothing else changes):
     data/GASREGW.csv          weekly U.S. regular gasoline price           (area "U.S.")
     data/DCOILWTICO.csv       daily WTI crude oil spot price               (series RWTC)
-    data/regions/<Area>.csv   weekly regular gasoline price per area       (states and/or PADD regions)
+    data/regions/<Area>.csv   weekly regular gasoline price per area       (states and/or cities; PADD regions only if asked for)
 
 Needs a free API key: https://www.eia.gov/opendata/register.php
 Pass it with --eia-key or the EIA_API_KEY environment variable. The key is only sent to api.eia.gov
@@ -30,7 +30,7 @@ PAGE = 5000  # EIA's maximum rows per request
 
 # EIA publishes weekly retail prices for exactly these 9 states (plus regions). Not all 50.
 STATES = ["California", "Colorado", "Florida", "Massachusetts", "Minnesota", "New York", "Ohio", "Texas", "Washington"]
-DEFAULT_AREAS = "states,regions"   # 9 states + the PADD regions (Central Atlantic, PADD 1B, is the stand-in for Pennsylvania)
+DEFAULT_AREAS = "states,metros"   # the 9 states EIA surveys + the cities it surveys. PADD regions are opt-in: add "regions".
 
 
 class EiaError(RuntimeError):
@@ -174,6 +174,16 @@ def fetch_all(key: str, data_dir: Path, areas: str = DEFAULT_AREAS, start: str =
         is_metro = not is_state and not _is_region(name) and "less" not in name.lower()
         if _norm(_label(name)) in want_names or (want_regions and _is_region(name)) or (want_metros and is_metro):
             picked[_label(name)] = rs
+    # Move region files left by an earlier fetch (e.g. the old Padd_*.csv) out of the way, so they are not modeled again.
+    keep = {label.replace(" ", "_") + ".csv" for label in picked}
+    manifest = reg_dir / ".fetched.json"
+    old = set(json.loads(manifest.read_text(encoding="utf-8"))) if manifest.exists() else set()
+    if reg_dir.is_dir():
+        for f in sorted(reg_dir.glob("*.csv")):
+            if f.name not in keep and (f.name in old or f.name.lower().startswith("padd")):
+                (reg_dir / "_old").mkdir(exist_ok=True)
+                shutil.move(str(f), str(reg_dir / "_old" / f.name))
+                log(f"  moved aside (no longer requested): data/regions/{f.name}  ->  data/regions/_old/")
     found = {_norm(k) for k in picked}
     summary["missing"] = sorted(w for w in want_names if w not in found)
     for label, rs in sorted(picked.items()):
@@ -181,6 +191,8 @@ def fetch_all(key: str, data_dir: Path, areas: str = DEFAULT_AREAS, start: str =
         _write(reg_dir / (label.replace(" ", "_") + ".csv"), "price", s.index, s.values)
         summary["areas"].append(label)
         log(f"  {label}: {len(s)} weeks, latest {s.index[-1].date()} at ${s.iloc[-1]:.3f}  ->  data/regions/{label.replace(' ', '_')}.csv")
+    reg_dir.mkdir(parents=True, exist_ok=True)
+    manifest.write_text(json.dumps(sorted(keep)), encoding="utf-8")
     if summary["missing"]:
         log("  NOT FOUND in EIA's reply: " + ", ".join(m.title() for m in summary["missing"]))
         log("  Areas EIA does list: " + ", ".join(sorted(_label(n) for n in by_area if n != us_name)[:40]))

@@ -4,117 +4,2359 @@
     "source": "Real data: EIA weekly gasoline (GASREGW) + WTI crude (DCOILWTICO)",
     "is_demo": false,
     "warnings": [
-      "Crude data ends 2026-11-03, but gas prices run through 2026-11-09. The newest week's crude value averages only 1 trading day(s), so the upcoming forecast leans on a stale crude reading. Re-run with --fetch-eia (or re-download DCOILWTICO.csv) once newer days are published.",
-      "Only 262 weeks of overlapping data (starting 2021-11-08). the crude file covers only a short window: run with --fetch-eia, or on FRED's DCOILWTICO page set the date range to the maximum and re-download, for far more training weeks."
+      "Crude data ends 2026-11-11, but gas prices run through 2026-11-16. The newest week's crude value averages only 2 trading day(s), so the upcoming forecast leans on a stale crude reading. Re-run with --fetch-eia (or re-download DCOILWTICO.csv) once newer days are published."
     ],
-    "generated": "2026-11-17 15:38",
-    "last_observed_week": "2026-11-09",
-    "forecast_week": "2026-11-16",
-    "current_price": 3.995,
-    "current_crude": 99.64,
-    "train_weeks": 168,
-    "test_weeks": 42,
+    "generated": "2026-11-18 13:28",
+    "last_observed_week": "2026-11-16",
+    "forecast_week": "2026-11-23",
+    "current_price": 3.805,
+    "current_crude": 89.62,
+    "train_weeks": 663,
+    "test_weeks": 166,
     "train_range": [
-      "2022-10-31",
-      "2026-01-12"
+      "2010-12-27",
+      "2023-09-04"
     ],
     "test_range": [
-      "2026-01-19",
-      "2026-11-02"
+      "2023-09-11",
+      "2026-11-09"
     ]
   },
   "Linear regression": {
-    "date": "2026-11-09",
-    "price_now": 3.995,
-    "predicted_next": 3.8944467572503445,
+    "date": "2026-11-16",
+    "price_now": 3.805,
+    "predicted_next": 3.7007405786330754,
     "actual_next": null,
-    "base_cents": -0.557,
+    "base_cents": 0.116,
     "groups_cents": {
-      "Recent pump-price momentum": -6.439,
-      "Crude oil moves": -2.246,
-      "Pump-vs-crude markup gap": 0.794,
-      "Season & holidays": -1.607
+      "Recent pump-price momentum": -9.079,
+      "Crude oil moves": -0.994,
+      "Pump-vs-crude markup gap": 0.637,
+      "Season & holidays": -1.105
     },
     "drivers": [
       {
         "group": "Recent pump-price momentum",
-        "cents": -6.44,
-        "because": "the pump price fell 15.8\u00a2 this week"
-      },
-      {
-        "group": "Crude oil moves",
-        "cents": -2.25,
-        "because": "crude oil fell $4.91/barrel this week"
+        "cents": -9.08,
+        "because": "the pump price fell 19.0\u00a2 this week"
       },
       {
         "group": "Season & holidays",
-        "cents": -1.61,
+        "cents": -1.11,
         "because": "the typical seasonal pattern for that time of year"
+      },
+      {
+        "group": "Crude oil moves",
+        "cents": -0.99,
+        "because": "crude oil fell $4.42/barrel this week"
       }
     ],
-    "summary": "Forecast $3.89, down 10.1\u00a2 from this week's $4.00. Main drivers: Recent pump-price momentum subtracts 6.4\u00a2 (the pump price fell 15.8\u00a2 this week); Crude oil moves subtracts 2.2\u00a2 (crude oil fell $4.91/barrel this week); Season & holidays subtracts 1.6\u00a2 (the typical seasonal pattern for that time of year)."
+    "summary": "Forecast $3.70, down 10.4\u00a2 from this week's $3.81. Main drivers: Recent pump-price momentum subtracts 9.1\u00a2 (the pump price fell 19.0\u00a2 this week); Season & holidays subtracts 1.1\u00a2 (the typical seasonal pattern for that time of year); Crude oil moves subtracts 1.0\u00a2 (crude oil fell $4.42/barrel this week)."
   },
   "Random forest": {
-    "date": "2026-11-09",
-    "price_now": 3.995,
-    "predicted_next": 3.93778520153569,
+    "date": "2026-11-16",
+    "price_now": 3.805,
+    "predicted_next": 3.697971910244865,
     "actual_next": null,
-    "base_cents": -0.557,
+    "base_cents": 0.103,
     "groups_cents": {
-      "Recent pump-price momentum": -2.744,
-      "Crude oil moves": -1.681,
-      "Pump-vs-crude markup gap": -0.109,
-      "Season & holidays": -0.63
+      "Recent pump-price momentum": -8.805,
+      "Crude oil moves": -1.946,
+      "Pump-vs-crude markup gap": 0.033,
+      "Season & holidays": -0.087
     },
     "drivers": [
       {
         "group": "Recent pump-price momentum",
-        "cents": -2.74,
-        "because": "the pump price fell 15.8\u00a2 this week"
+        "cents": -8.81,
+        "because": "the pump price fell 19.0\u00a2 this week"
       },
       {
         "group": "Crude oil moves",
-        "cents": -1.68,
-        "because": "crude oil fell $4.91/barrel this week"
-      },
-      {
-        "group": "Season & holidays",
-        "cents": -0.63,
-        "because": "the typical seasonal pattern for that time of year"
+        "cents": -1.95,
+        "because": "crude oil fell $4.42/barrel this week"
       }
     ],
-    "summary": "Forecast $3.94, down 5.7\u00a2 from this week's $4.00. Main drivers: Recent pump-price momentum subtracts 2.7\u00a2 (the pump price fell 15.8\u00a2 this week); Crude oil moves subtracts 1.7\u00a2 (crude oil fell $4.91/barrel this week); Season & holidays subtracts 0.6\u00a2 (the typical seasonal pattern for that time of year)."
+    "summary": "Forecast $3.70, down 10.7\u00a2 from this week's $3.81. Main drivers: Recent pump-price momentum subtracts 8.8\u00a2 (the pump price fell 19.0\u00a2 this week); Crude oil moves subtracts 1.9\u00a2 (crude oil fell $4.42/barrel this week)."
   },
   "scenarios": [
     {
       "crude_shock": -10,
-      "crude_now": 89.64,
-      "Linear regression": 3.8171657342444236,
-      "Random forest": 3.9410316403543177
+      "crude_now": 79.62,
+      "Linear regression": 3.659348585503058,
+      "Random forest": 3.6974863346273996
     },
     {
       "crude_shock": -5,
-      "crude_now": 94.64,
-      "Linear regression": 3.855806245747384,
-      "Random forest": 3.936165450950448
+      "crude_now": 84.62,
+      "Linear regression": 3.6800445820680667,
+      "Random forest": 3.6976300395012296
     },
     {
       "crude_shock": 0,
-      "crude_now": 99.64,
-      "Linear regression": 3.8944467572503445,
-      "Random forest": 3.93778520153569
+      "crude_now": 89.62,
+      "Linear regression": 3.7007405786330754,
+      "Random forest": 3.697971910244865
     },
     {
       "crude_shock": 5,
-      "crude_now": 104.64,
-      "Linear regression": 3.933087268753305,
-      "Random forest": 3.9583391488920197
+      "crude_now": 94.62,
+      "Linear regression": 3.7214365751980836,
+      "Random forest": 3.7251247285949685
     },
     {
       "crude_shock": 10,
-      "crude_now": 109.64,
-      "Linear regression": 3.9717277802562654,
-      "Random forest": 3.967072625989661
+      "crude_now": 99.62,
+      "Linear regression": 3.742132571763092,
+      "Random forest": 3.7258017076135683
     }
-  ]
+  ],
+  "regions": {
+    "Boston": {
+      "meta": {
+        "label": "Boston",
+        "source": "Real data: Boston weekly retail gasoline (EIA) + WTI crude (DCOILWTICO)",
+        "is_demo": false,
+        "warnings": [
+          "Crude data ends 2026-11-11, but gas prices run through 2026-11-16. The newest week's crude value averages only 2 trading day(s), so the upcoming forecast leans on a stale crude reading. Re-run with --fetch-eia (or re-download DCOILWTICO.csv) once newer days are published."
+        ],
+        "generated": "2026-11-18 13:29",
+        "last_observed_week": "2026-11-16",
+        "forecast_week": "2026-11-23",
+        "current_price": 3.885,
+        "current_crude": 89.62,
+        "train_weeks": 663,
+        "test_weeks": 166,
+        "train_range": [
+          "2010-12-27",
+          "2023-09-04"
+        ],
+        "test_range": [
+          "2023-09-11",
+          "2026-11-09"
+        ]
+      },
+      "Linear regression": {
+        "date": "2026-11-16",
+        "price_now": 3.885,
+        "predicted_next": 3.798355839173741,
+        "actual_next": null,
+        "base_cents": 0.099,
+        "groups_cents": {
+          "Recent pump-price momentum": -5.823,
+          "Crude oil moves": -2.163,
+          "Pump-vs-crude markup gap": 0.083,
+          "Season & holidays": -0.862
+        },
+        "drivers": [
+          {
+            "group": "Recent pump-price momentum",
+            "cents": -5.82,
+            "because": "the pump price fell 13.5\u00a2 this week"
+          },
+          {
+            "group": "Crude oil moves",
+            "cents": -2.16,
+            "because": "crude oil fell $4.42/barrel this week"
+          },
+          {
+            "group": "Season & holidays",
+            "cents": -0.86,
+            "because": "the typical seasonal pattern for that time of year"
+          }
+        ],
+        "summary": "Forecast $3.80, down 8.7\u00a2 from this week's $3.88. Main drivers: Recent pump-price momentum subtracts 5.8\u00a2 (the pump price fell 13.5\u00a2 this week); Crude oil moves subtracts 2.2\u00a2 (crude oil fell $4.42/barrel this week); Season & holidays subtracts 0.9\u00a2 (the typical seasonal pattern for that time of year)."
+      },
+      "Random forest": {
+        "date": "2026-11-16",
+        "price_now": 3.885,
+        "predicted_next": 3.7980008173515802,
+        "actual_next": null,
+        "base_cents": 0.088,
+        "groups_cents": {
+          "Recent pump-price momentum": -7.33,
+          "Crude oil moves": -1.278,
+          "Pump-vs-crude markup gap": -0.144,
+          "Season & holidays": -0.036
+        },
+        "drivers": [
+          {
+            "group": "Recent pump-price momentum",
+            "cents": -7.33,
+            "because": "the pump price fell 13.5\u00a2 this week"
+          },
+          {
+            "group": "Crude oil moves",
+            "cents": -1.28,
+            "because": "crude oil fell $4.42/barrel this week"
+          }
+        ],
+        "summary": "Forecast $3.80, down 8.7\u00a2 from this week's $3.88. Main drivers: Recent pump-price momentum subtracts 7.3\u00a2 (the pump price fell 13.5\u00a2 this week); Crude oil moves subtracts 1.3\u00a2 (crude oil fell $4.42/barrel this week)."
+      },
+      "scenarios": [
+        {
+          "crude_shock": -10,
+          "crude_now": 79.62,
+          "Linear regression": 3.7590084966617514,
+          "Random forest": 3.7972641413882515
+        },
+        {
+          "crude_shock": -5,
+          "crude_now": 84.62,
+          "Linear regression": 3.7786821679177462,
+          "Random forest": 3.796864862542098
+        },
+        {
+          "crude_shock": 0,
+          "crude_now": 89.62,
+          "Linear regression": 3.798355839173741,
+          "Random forest": 3.7980008173515802
+        },
+        {
+          "crude_shock": 5,
+          "crude_now": 94.62,
+          "Linear regression": 3.818029510429736,
+          "Random forest": 3.8215783598524613
+        },
+        {
+          "crude_shock": 10,
+          "crude_now": 99.62,
+          "Linear regression": 3.8377031816857308,
+          "Random forest": 3.8271139746433
+        }
+      ]
+    },
+    "California": {
+      "meta": {
+        "label": "California",
+        "source": "Real data: California weekly retail gasoline (EIA) + WTI crude (DCOILWTICO)",
+        "is_demo": false,
+        "warnings": [
+          "Crude data ends 2026-11-11, but gas prices run through 2026-11-16. The newest week's crude value averages only 2 trading day(s), so the upcoming forecast leans on a stale crude reading. Re-run with --fetch-eia (or re-download DCOILWTICO.csv) once newer days are published."
+        ],
+        "generated": "2026-11-18 13:29",
+        "last_observed_week": "2026-11-16",
+        "forecast_week": "2026-11-23",
+        "current_price": 5.387,
+        "current_crude": 89.62,
+        "train_weeks": 663,
+        "test_weeks": 166,
+        "train_range": [
+          "2010-12-27",
+          "2023-09-04"
+        ],
+        "test_range": [
+          "2023-09-11",
+          "2026-11-09"
+        ]
+      },
+      "Linear regression": {
+        "date": "2026-11-16",
+        "price_now": 5.387,
+        "predicted_next": 5.2707740578866025,
+        "actual_next": null,
+        "base_cents": 0.297,
+        "groups_cents": {
+          "Recent pump-price momentum": -9.045,
+          "Crude oil moves": -2.074,
+          "Pump-vs-crude markup gap": 0.321,
+          "Season & holidays": -1.121
+        },
+        "drivers": [
+          {
+            "group": "Recent pump-price momentum",
+            "cents": -9.05,
+            "because": "the pump price fell 17.5\u00a2 this week"
+          },
+          {
+            "group": "Crude oil moves",
+            "cents": -2.07,
+            "because": "crude oil fell $4.42/barrel this week"
+          },
+          {
+            "group": "Season & holidays",
+            "cents": -1.12,
+            "because": "the typical seasonal pattern for that time of year"
+          }
+        ],
+        "summary": "Forecast $5.27, down 11.6\u00a2 from this week's $5.39. Main drivers: Recent pump-price momentum subtracts 9.1\u00a2 (the pump price fell 17.5\u00a2 this week); Crude oil moves subtracts 2.1\u00a2 (crude oil fell $4.42/barrel this week); Season & holidays subtracts 1.1\u00a2 (the typical seasonal pattern for that time of year)."
+      },
+      "Random forest": {
+        "date": "2026-11-16",
+        "price_now": 5.387,
+        "predicted_next": 5.249814998652905,
+        "actual_next": null,
+        "base_cents": 0.27,
+        "groups_cents": {
+          "Recent pump-price momentum": -12.445,
+          "Crude oil moves": -1.543,
+          "Pump-vs-crude markup gap": 0.296,
+          "Season & holidays": -0.298
+        },
+        "drivers": [
+          {
+            "group": "Recent pump-price momentum",
+            "cents": -12.44,
+            "because": "the pump price fell 17.5\u00a2 this week"
+          },
+          {
+            "group": "Crude oil moves",
+            "cents": -1.54,
+            "because": "crude oil fell $4.42/barrel this week"
+          },
+          {
+            "group": "Season & holidays",
+            "cents": -0.3,
+            "because": "the typical seasonal pattern for that time of year"
+          }
+        ],
+        "summary": "Forecast $5.25, down 13.7\u00a2 from this week's $5.39. Main drivers: Recent pump-price momentum subtracts 12.4\u00a2 (the pump price fell 17.5\u00a2 this week); Crude oil moves subtracts 1.5\u00a2 (crude oil fell $4.42/barrel this week); Season & holidays subtracts 0.3\u00a2 (the typical seasonal pattern for that time of year)."
+      },
+      "scenarios": [
+        {
+          "crude_shock": -10,
+          "crude_now": 79.62,
+          "Linear regression": 5.232931569721186,
+          "Random forest": 5.248416434585762
+        },
+        {
+          "crude_shock": -5,
+          "crude_now": 84.62,
+          "Linear regression": 5.251852813803894,
+          "Random forest": 5.249344225745258
+        },
+        {
+          "crude_shock": 0,
+          "crude_now": 89.62,
+          "Linear regression": 5.2707740578866025,
+          "Random forest": 5.249814998652905
+        },
+        {
+          "crude_shock": 5,
+          "crude_now": 94.62,
+          "Linear regression": 5.289695301969312,
+          "Random forest": 5.268128879705316
+        },
+        {
+          "crude_shock": 10,
+          "crude_now": 99.62,
+          "Linear regression": 5.30861654605202,
+          "Random forest": 5.2751414145974955
+        }
+      ]
+    },
+    "Chicago": {
+      "meta": {
+        "label": "Chicago",
+        "source": "Real data: Chicago weekly retail gasoline (EIA) + WTI crude (DCOILWTICO)",
+        "is_demo": false,
+        "warnings": [
+          "Crude data ends 2026-11-11, but gas prices run through 2026-11-16. The newest week's crude value averages only 2 trading day(s), so the upcoming forecast leans on a stale crude reading. Re-run with --fetch-eia (or re-download DCOILWTICO.csv) once newer days are published."
+        ],
+        "generated": "2026-11-18 13:29",
+        "last_observed_week": "2026-11-16",
+        "forecast_week": "2026-11-23",
+        "current_price": 4.193,
+        "current_crude": 89.62,
+        "train_weeks": 663,
+        "test_weeks": 166,
+        "train_range": [
+          "2010-12-27",
+          "2023-09-04"
+        ],
+        "test_range": [
+          "2023-09-11",
+          "2026-11-09"
+        ]
+      },
+      "Linear regression": {
+        "date": "2026-11-16",
+        "price_now": 4.193,
+        "predicted_next": 4.072744836784117,
+        "actual_next": null,
+        "base_cents": 0.13,
+        "groups_cents": {
+          "Recent pump-price momentum": -4.764,
+          "Crude oil moves": -3.956,
+          "Pump-vs-crude markup gap": -0.186,
+          "Season & holidays": -3.25
+        },
+        "drivers": [
+          {
+            "group": "Recent pump-price momentum",
+            "cents": -4.76,
+            "because": "the pump price fell 26.8\u00a2 this week"
+          },
+          {
+            "group": "Crude oil moves",
+            "cents": -3.96,
+            "because": "crude oil fell $4.42/barrel this week"
+          },
+          {
+            "group": "Season & holidays",
+            "cents": -3.25,
+            "because": "the typical seasonal pattern for that time of year"
+          }
+        ],
+        "summary": "Forecast $4.07, down 12.0\u00a2 from this week's $4.19. Main drivers: Recent pump-price momentum subtracts 4.8\u00a2 (the pump price fell 26.8\u00a2 this week); Crude oil moves subtracts 4.0\u00a2 (crude oil fell $4.42/barrel this week); Season & holidays subtracts 3.2\u00a2 (the typical seasonal pattern for that time of year)."
+      },
+      "Random forest": {
+        "date": "2026-11-16",
+        "price_now": 4.193,
+        "predicted_next": 4.06898219814174,
+        "actual_next": null,
+        "base_cents": 0.144,
+        "groups_cents": {
+          "Recent pump-price momentum": -8.185,
+          "Crude oil moves": -3.36,
+          "Pump-vs-crude markup gap": 0.142,
+          "Season & holidays": -1.142
+        },
+        "drivers": [
+          {
+            "group": "Recent pump-price momentum",
+            "cents": -8.19,
+            "because": "the pump price fell 26.8\u00a2 this week"
+          },
+          {
+            "group": "Crude oil moves",
+            "cents": -3.36,
+            "because": "crude oil fell $4.42/barrel this week"
+          },
+          {
+            "group": "Season & holidays",
+            "cents": -1.14,
+            "because": "the typical seasonal pattern for that time of year"
+          }
+        ],
+        "summary": "Forecast $4.07, down 12.4\u00a2 from this week's $4.19. Main drivers: Recent pump-price momentum subtracts 8.2\u00a2 (the pump price fell 26.8\u00a2 this week); Crude oil moves subtracts 3.4\u00a2 (crude oil fell $4.42/barrel this week); Season & holidays subtracts 1.1\u00a2 (the typical seasonal pattern for that time of year)."
+      },
+      "scenarios": [
+        {
+          "crude_shock": -10,
+          "crude_now": 79.62,
+          "Linear regression": 3.998341970124599,
+          "Random forest": 4.0674783741195
+        },
+        {
+          "crude_shock": -5,
+          "crude_now": 84.62,
+          "Linear regression": 4.035543403454358,
+          "Random forest": 4.069074616901329
+        },
+        {
+          "crude_shock": 0,
+          "crude_now": 89.62,
+          "Linear regression": 4.072744836784117,
+          "Random forest": 4.06898219814174
+        },
+        {
+          "crude_shock": 5,
+          "crude_now": 94.62,
+          "Linear regression": 4.109946270113876,
+          "Random forest": 4.106910416319792
+        },
+        {
+          "crude_shock": 10,
+          "crude_now": 99.62,
+          "Linear regression": 4.147147703443635,
+          "Random forest": 4.108057406384538
+        }
+      ]
+    },
+    "Cleveland": {
+      "meta": {
+        "label": "Cleveland",
+        "source": "Real data: Cleveland weekly retail gasoline (EIA) + WTI crude (DCOILWTICO)",
+        "is_demo": false,
+        "warnings": [
+          "Crude data ends 2026-11-11, but gas prices run through 2026-11-16. The newest week's crude value averages only 2 trading day(s), so the upcoming forecast leans on a stale crude reading. Re-run with --fetch-eia (or re-download DCOILWTICO.csv) once newer days are published."
+        ],
+        "generated": "2026-11-18 13:30",
+        "last_observed_week": "2026-11-16",
+        "forecast_week": "2026-11-23",
+        "current_price": 3.445,
+        "current_crude": 89.62,
+        "train_weeks": 659,
+        "test_weeks": 165,
+        "train_range": [
+          "2010-12-27",
+          "2023-09-04"
+        ],
+        "test_range": [
+          "2023-09-11",
+          "2026-11-09"
+        ]
+      },
+      "Linear regression": {
+        "date": "2026-11-16",
+        "price_now": 3.445,
+        "predicted_next": 3.4189418733359846,
+        "actual_next": null,
+        "base_cents": 0.064,
+        "groups_cents": {
+          "Recent pump-price momentum": -2.091,
+          "Crude oil moves": -3.836,
+          "Pump-vs-crude markup gap": 6.291,
+          "Season & holidays": -3.035
+        },
+        "drivers": [
+          {
+            "group": "Pump-vs-crude markup gap",
+            "cents": 6.29,
+            "because": "the pump price sits 38\u00a2 below its usual markup over crude"
+          },
+          {
+            "group": "Crude oil moves",
+            "cents": -3.84,
+            "because": "crude oil fell $4.42/barrel this week"
+          },
+          {
+            "group": "Season & holidays",
+            "cents": -3.03,
+            "because": "the typical seasonal pattern for that time of year"
+          }
+        ],
+        "summary": "Forecast $3.42, down 2.6\u00a2 from this week's $3.44. Main drivers: Pump-vs-crude markup gap adds 6.3\u00a2 (the pump price sits 38\u00a2 below its usual markup over crude); Crude oil moves subtracts 3.8\u00a2 (crude oil fell $4.42/barrel this week); Season & holidays subtracts 3.0\u00a2 (the typical seasonal pattern for that time of year)."
+      },
+      "Random forest": {
+        "date": "2026-11-16",
+        "price_now": 3.445,
+        "predicted_next": 3.341788677573742,
+        "actual_next": null,
+        "base_cents": 0.001,
+        "groups_cents": {
+          "Recent pump-price momentum": -6.447,
+          "Crude oil moves": -4.256,
+          "Pump-vs-crude markup gap": 0.935,
+          "Season & holidays": -0.554
+        },
+        "drivers": [
+          {
+            "group": "Recent pump-price momentum",
+            "cents": -6.45,
+            "because": "the pump price fell 36.5\u00a2 this week"
+          },
+          {
+            "group": "Crude oil moves",
+            "cents": -4.26,
+            "because": "crude oil fell $4.42/barrel this week"
+          },
+          {
+            "group": "Pump-vs-crude markup gap",
+            "cents": 0.94,
+            "because": "the pump price sits 38\u00a2 below its usual markup over crude"
+          }
+        ],
+        "summary": "Forecast $3.34, down 10.3\u00a2 from this week's $3.44. Main drivers: Recent pump-price momentum subtracts 6.5\u00a2 (the pump price fell 36.5\u00a2 this week); Crude oil moves subtracts 4.3\u00a2 (crude oil fell $4.42/barrel this week); Pump-vs-crude markup gap adds 0.9\u00a2 (the pump price sits 38\u00a2 below its usual markup over crude)."
+      },
+      "scenarios": [
+        {
+          "crude_shock": -10,
+          "crude_now": 79.62,
+          "Linear regression": 3.328420108930616,
+          "Random forest": 3.3387931196237943
+        },
+        {
+          "crude_shock": -5,
+          "crude_now": 84.62,
+          "Linear regression": 3.3736809911333,
+          "Random forest": 3.340025446223121
+        },
+        {
+          "crude_shock": 0,
+          "crude_now": 89.62,
+          "Linear regression": 3.4189418733359846,
+          "Random forest": 3.341788677573742
+        },
+        {
+          "crude_shock": 5,
+          "crude_now": 94.62,
+          "Linear regression": 3.464202755538669,
+          "Random forest": 3.3949795881785194
+        },
+        {
+          "crude_shock": 10,
+          "crude_now": 99.62,
+          "Linear regression": 3.5094636377413537,
+          "Random forest": 3.3978841336608907
+        }
+      ]
+    },
+    "Colorado": {
+      "meta": {
+        "label": "Colorado",
+        "source": "Real data: Colorado weekly retail gasoline (EIA) + WTI crude (DCOILWTICO)",
+        "is_demo": false,
+        "warnings": [
+          "Crude data ends 2026-11-11, but gas prices run through 2026-11-16. The newest week's crude value averages only 2 trading day(s), so the upcoming forecast leans on a stale crude reading. Re-run with --fetch-eia (or re-download DCOILWTICO.csv) once newer days are published."
+        ],
+        "generated": "2026-11-18 13:30",
+        "last_observed_week": "2026-11-16",
+        "forecast_week": "2026-11-23",
+        "current_price": 3.513,
+        "current_crude": 89.62,
+        "train_weeks": 660,
+        "test_weeks": 165,
+        "train_range": [
+          "2010-12-27",
+          "2023-09-11"
+        ],
+        "test_range": [
+          "2023-09-18",
+          "2026-11-09"
+        ]
+      },
+      "Linear regression": {
+        "date": "2026-11-16",
+        "price_now": 3.513,
+        "predicted_next": 3.356238761177689,
+        "actual_next": null,
+        "base_cents": 0.181,
+        "groups_cents": {
+          "Recent pump-price momentum": -16.408,
+          "Crude oil moves": 0.351,
+          "Pump-vs-crude markup gap": 1.568,
+          "Season & holidays": -1.367
+        },
+        "drivers": [
+          {
+            "group": "Recent pump-price momentum",
+            "cents": -16.41,
+            "because": "the pump price fell 23.3\u00a2 this week"
+          },
+          {
+            "group": "Pump-vs-crude markup gap",
+            "cents": 1.57,
+            "because": "the pump price sits 19\u00a2 below its usual markup over crude"
+          },
+          {
+            "group": "Season & holidays",
+            "cents": -1.37,
+            "because": "the typical seasonal pattern for that time of year"
+          }
+        ],
+        "summary": "Forecast $3.36, down 15.7\u00a2 from this week's $3.51. Main drivers: Recent pump-price momentum subtracts 16.4\u00a2 (the pump price fell 23.3\u00a2 this week); Pump-vs-crude markup gap adds 1.6\u00a2 (the pump price sits 19\u00a2 below its usual markup over crude); Season & holidays subtracts 1.4\u00a2 (the typical seasonal pattern for that time of year)."
+      },
+      "Random forest": {
+        "date": "2026-11-16",
+        "price_now": 3.513,
+        "predicted_next": 3.3968739733708118,
+        "actual_next": null,
+        "base_cents": 0.131,
+        "groups_cents": {
+          "Recent pump-price momentum": -10.773,
+          "Crude oil moves": -1.439,
+          "Pump-vs-crude markup gap": 0.456,
+          "Season & holidays": 0.013
+        },
+        "drivers": [
+          {
+            "group": "Recent pump-price momentum",
+            "cents": -10.77,
+            "because": "the pump price fell 23.3\u00a2 this week"
+          },
+          {
+            "group": "Crude oil moves",
+            "cents": -1.44,
+            "because": "crude oil fell $4.42/barrel this week"
+          },
+          {
+            "group": "Pump-vs-crude markup gap",
+            "cents": 0.46,
+            "because": "the pump price sits 19\u00a2 below its usual markup over crude"
+          }
+        ],
+        "summary": "Forecast $3.40, down 11.6\u00a2 from this week's $3.51. Main drivers: Recent pump-price momentum subtracts 10.8\u00a2 (the pump price fell 23.3\u00a2 this week); Crude oil moves subtracts 1.4\u00a2 (crude oil fell $4.42/barrel this week); Pump-vs-crude markup gap adds 0.5\u00a2 (the pump price sits 19\u00a2 below its usual markup over crude)."
+      },
+      "scenarios": [
+        {
+          "crude_shock": -10,
+          "crude_now": 79.62,
+          "Linear regression": 3.308492078489363,
+          "Random forest": 3.391510980818397
+        },
+        {
+          "crude_shock": -5,
+          "crude_now": 84.62,
+          "Linear regression": 3.3323654198335264,
+          "Random forest": 3.3957023148441534
+        },
+        {
+          "crude_shock": 0,
+          "crude_now": 89.62,
+          "Linear regression": 3.356238761177689,
+          "Random forest": 3.3968739733708118
+        },
+        {
+          "crude_shock": 5,
+          "crude_now": 94.62,
+          "Linear regression": 3.3801121025218523,
+          "Random forest": 3.418807736628913
+        },
+        {
+          "crude_shock": 10,
+          "crude_now": 99.62,
+          "Linear regression": 3.4039854438660155,
+          "Random forest": 3.4254329404875614
+        }
+      ]
+    },
+    "Denver": {
+      "meta": {
+        "label": "Denver",
+        "source": "Real data: Denver weekly retail gasoline (EIA) + WTI crude (DCOILWTICO)",
+        "is_demo": false,
+        "warnings": [
+          "Crude data ends 2026-11-11, but gas prices run through 2026-11-16. The newest week's crude value averages only 2 trading day(s), so the upcoming forecast leans on a stale crude reading. Re-run with --fetch-eia (or re-download DCOILWTICO.csv) once newer days are published."
+        ],
+        "generated": "2026-11-18 13:30",
+        "last_observed_week": "2026-11-16",
+        "forecast_week": "2026-11-23",
+        "current_price": 3.344,
+        "current_crude": 89.62,
+        "train_weeks": 663,
+        "test_weeks": 166,
+        "train_range": [
+          "2010-12-27",
+          "2023-09-04"
+        ],
+        "test_range": [
+          "2023-09-11",
+          "2026-11-09"
+        ]
+      },
+      "Linear regression": {
+        "date": "2026-11-16",
+        "price_now": 3.344,
+        "predicted_next": 3.143435641305019,
+        "actual_next": null,
+        "base_cents": 0.161,
+        "groups_cents": {
+          "Recent pump-price momentum": -20.852,
+          "Crude oil moves": -0.625,
+          "Pump-vs-crude markup gap": 2.673,
+          "Season & holidays": -1.413
+        },
+        "drivers": [
+          {
+            "group": "Recent pump-price momentum",
+            "cents": -20.85,
+            "because": "the pump price fell 29.8\u00a2 this week"
+          },
+          {
+            "group": "Pump-vs-crude markup gap",
+            "cents": 2.67,
+            "because": "the pump price sits 33\u00a2 below its usual markup over crude"
+          },
+          {
+            "group": "Season & holidays",
+            "cents": -1.41,
+            "because": "the typical seasonal pattern for that time of year"
+          }
+        ],
+        "summary": "Forecast $3.14, down 20.1\u00a2 from this week's $3.34. Main drivers: Recent pump-price momentum subtracts 20.9\u00a2 (the pump price fell 29.8\u00a2 this week); Pump-vs-crude markup gap adds 2.7\u00a2 (the pump price sits 33\u00a2 below its usual markup over crude); Season & holidays subtracts 1.4\u00a2 (the typical seasonal pattern for that time of year)."
+      },
+      "Random forest": {
+        "date": "2026-11-16",
+        "price_now": 3.344,
+        "predicted_next": 3.223096239578074,
+        "actual_next": null,
+        "base_cents": 0.133,
+        "groups_cents": {
+          "Recent pump-price momentum": -11.034,
+          "Crude oil moves": -1.6,
+          "Pump-vs-crude markup gap": 0.514,
+          "Season & holidays": -0.103
+        },
+        "drivers": [
+          {
+            "group": "Recent pump-price momentum",
+            "cents": -11.03,
+            "because": "the pump price fell 29.8\u00a2 this week"
+          },
+          {
+            "group": "Crude oil moves",
+            "cents": -1.6,
+            "because": "crude oil fell $4.42/barrel this week"
+          },
+          {
+            "group": "Pump-vs-crude markup gap",
+            "cents": 0.51,
+            "because": "the pump price sits 33\u00a2 below its usual markup over crude"
+          }
+        ],
+        "summary": "Forecast $3.22, down 12.1\u00a2 from this week's $3.34. Main drivers: Recent pump-price momentum subtracts 11.0\u00a2 (the pump price fell 29.8\u00a2 this week); Crude oil moves subtracts 1.6\u00a2 (crude oil fell $4.42/barrel this week); Pump-vs-crude markup gap adds 0.5\u00a2 (the pump price sits 33\u00a2 below its usual markup over crude)."
+      },
+      "scenarios": [
+        {
+          "crude_shock": -10,
+          "crude_now": 79.62,
+          "Linear regression": 3.100021723238672,
+          "Random forest": 3.220862107068715
+        },
+        {
+          "crude_shock": -5,
+          "crude_now": 84.62,
+          "Linear regression": 3.1217286822718457,
+          "Random forest": 3.2215711616418488
+        },
+        {
+          "crude_shock": 0,
+          "crude_now": 89.62,
+          "Linear regression": 3.143435641305019,
+          "Random forest": 3.223096239578074
+        },
+        {
+          "crude_shock": 5,
+          "crude_now": 94.62,
+          "Linear regression": 3.165142600338193,
+          "Random forest": 3.240883322921806
+        },
+        {
+          "crude_shock": 10,
+          "crude_now": 99.62,
+          "Linear regression": 3.186849559371366,
+          "Random forest": 3.2459009710383877
+        }
+      ]
+    },
+    "Florida": {
+      "meta": {
+        "label": "Florida",
+        "source": "Real data: Florida weekly retail gasoline (EIA) + WTI crude (DCOILWTICO)",
+        "is_demo": false,
+        "warnings": [
+          "Crude data ends 2026-11-11, but gas prices run through 2026-11-16. The newest week's crude value averages only 2 trading day(s), so the upcoming forecast leans on a stale crude reading. Re-run with --fetch-eia (or re-download DCOILWTICO.csv) once newer days are published."
+        ],
+        "generated": "2026-11-18 13:30",
+        "last_observed_week": "2026-11-16",
+        "forecast_week": "2026-11-23",
+        "current_price": 3.525,
+        "current_crude": 89.62,
+        "train_weeks": 663,
+        "test_weeks": 166,
+        "train_range": [
+          "2010-12-27",
+          "2023-09-04"
+        ],
+        "test_range": [
+          "2023-09-11",
+          "2026-11-09"
+        ]
+      },
+      "Linear regression": {
+        "date": "2026-11-16",
+        "price_now": 3.525,
+        "predicted_next": 3.4610734943021164,
+        "actual_next": null,
+        "base_cents": 0.073,
+        "groups_cents": {
+          "Recent pump-price momentum": -2.601,
+          "Crude oil moves": -4.441,
+          "Pump-vs-crude markup gap": 1.904,
+          "Season & holidays": -1.328
+        },
+        "drivers": [
+          {
+            "group": "Crude oil moves",
+            "cents": -4.44,
+            "because": "crude oil fell $4.42/barrel this week"
+          },
+          {
+            "group": "Recent pump-price momentum",
+            "cents": -2.6,
+            "because": "the pump price fell 20.1\u00a2 this week"
+          },
+          {
+            "group": "Pump-vs-crude markup gap",
+            "cents": 1.9,
+            "because": "the pump price sits 20\u00a2 below its usual markup over crude"
+          }
+        ],
+        "summary": "Forecast $3.46, down 6.4\u00a2 from this week's $3.52. Main drivers: Crude oil moves subtracts 4.4\u00a2 (crude oil fell $4.42/barrel this week); Recent pump-price momentum subtracts 2.6\u00a2 (the pump price fell 20.1\u00a2 this week); Pump-vs-crude markup gap adds 1.9\u00a2 (the pump price sits 20\u00a2 below its usual markup over crude)."
+      },
+      "Random forest": {
+        "date": "2026-11-16",
+        "price_now": 3.525,
+        "predicted_next": 3.44817963908409,
+        "actual_next": null,
+        "base_cents": 0.055,
+        "groups_cents": {
+          "Recent pump-price momentum": -4.295,
+          "Crude oil moves": -4.014,
+          "Pump-vs-crude markup gap": 0.766,
+          "Season & holidays": -0.194
+        },
+        "drivers": [
+          {
+            "group": "Recent pump-price momentum",
+            "cents": -4.29,
+            "because": "the pump price fell 20.1\u00a2 this week"
+          },
+          {
+            "group": "Crude oil moves",
+            "cents": -4.01,
+            "because": "crude oil fell $4.42/barrel this week"
+          },
+          {
+            "group": "Pump-vs-crude markup gap",
+            "cents": 0.77,
+            "because": "the pump price sits 20\u00a2 below its usual markup over crude"
+          }
+        ],
+        "summary": "Forecast $3.45, down 7.7\u00a2 from this week's $3.52. Main drivers: Recent pump-price momentum subtracts 4.3\u00a2 (the pump price fell 20.1\u00a2 this week); Crude oil moves subtracts 4.0\u00a2 (crude oil fell $4.42/barrel this week); Pump-vs-crude markup gap adds 0.8\u00a2 (the pump price sits 20\u00a2 below its usual markup over crude)."
+      },
+      "scenarios": [
+        {
+          "crude_shock": -10,
+          "crude_now": 79.62,
+          "Linear regression": 3.3505251316556954,
+          "Random forest": 3.431337227005078
+        },
+        {
+          "crude_shock": -5,
+          "crude_now": 84.62,
+          "Linear regression": 3.405799312978906,
+          "Random forest": 3.4392848187488934
+        },
+        {
+          "crude_shock": 0,
+          "crude_now": 89.62,
+          "Linear regression": 3.4610734943021164,
+          "Random forest": 3.44817963908409
+        },
+        {
+          "crude_shock": 5,
+          "crude_now": 94.62,
+          "Linear regression": 3.5163476756253274,
+          "Random forest": 3.4956665490605814
+        },
+        {
+          "crude_shock": 10,
+          "crude_now": 99.62,
+          "Linear regression": 3.571621856948538,
+          "Random forest": 3.512519919321038
+        }
+      ]
+    },
+    "Houston": {
+      "meta": {
+        "label": "Houston",
+        "source": "Real data: Houston weekly retail gasoline (EIA) + WTI crude (DCOILWTICO)",
+        "is_demo": false,
+        "warnings": [
+          "Crude data ends 2026-11-11, but gas prices run through 2026-11-16. The newest week's crude value averages only 2 trading day(s), so the upcoming forecast leans on a stale crude reading. Re-run with --fetch-eia (or re-download DCOILWTICO.csv) once newer days are published."
+        ],
+        "generated": "2026-11-18 13:30",
+        "last_observed_week": "2026-11-16",
+        "forecast_week": "2026-11-23",
+        "current_price": 3.298,
+        "current_crude": 89.62,
+        "train_weeks": 662,
+        "test_weeks": 166,
+        "train_range": [
+          "2010-12-27",
+          "2023-08-28"
+        ],
+        "test_range": [
+          "2023-09-04",
+          "2026-11-09"
+        ]
+      },
+      "Linear regression": {
+        "date": "2026-11-16",
+        "price_now": 3.298,
+        "predicted_next": 3.202608355813903,
+        "actual_next": null,
+        "base_cents": 0.061,
+        "groups_cents": {
+          "Recent pump-price momentum": -6.981,
+          "Crude oil moves": -2.067,
+          "Pump-vs-crude markup gap": 0.755,
+          "Season & holidays": -1.307
+        },
+        "drivers": [
+          {
+            "group": "Recent pump-price momentum",
+            "cents": -6.98,
+            "because": "the pump price fell 19.1\u00a2 this week"
+          },
+          {
+            "group": "Crude oil moves",
+            "cents": -2.07,
+            "because": "crude oil fell $4.42/barrel this week"
+          },
+          {
+            "group": "Season & holidays",
+            "cents": -1.31,
+            "because": "the typical seasonal pattern for that time of year"
+          }
+        ],
+        "summary": "Forecast $3.20, down 9.5\u00a2 from this week's $3.30. Main drivers: Recent pump-price momentum subtracts 7.0\u00a2 (the pump price fell 19.1\u00a2 this week); Crude oil moves subtracts 2.1\u00a2 (crude oil fell $4.42/barrel this week); Season & holidays subtracts 1.3\u00a2 (the typical seasonal pattern for that time of year)."
+      },
+      "Random forest": {
+        "date": "2026-11-16",
+        "price_now": 3.298,
+        "predicted_next": 3.205749356635976,
+        "actual_next": null,
+        "base_cents": 0.054,
+        "groups_cents": {
+          "Recent pump-price momentum": -7.305,
+          "Crude oil moves": -1.988,
+          "Pump-vs-crude markup gap": 0.07,
+          "Season & holidays": -0.057
+        },
+        "drivers": [
+          {
+            "group": "Recent pump-price momentum",
+            "cents": -7.31,
+            "because": "the pump price fell 19.1\u00a2 this week"
+          },
+          {
+            "group": "Crude oil moves",
+            "cents": -1.99,
+            "because": "crude oil fell $4.42/barrel this week"
+          }
+        ],
+        "summary": "Forecast $3.21, down 9.2\u00a2 from this week's $3.30. Main drivers: Recent pump-price momentum subtracts 7.3\u00a2 (the pump price fell 19.1\u00a2 this week); Crude oil moves subtracts 2.0\u00a2 (crude oil fell $4.42/barrel this week)."
+      },
+      "scenarios": [
+        {
+          "crude_shock": -10,
+          "crude_now": 79.62,
+          "Linear regression": 3.1442047423014756,
+          "Random forest": 3.2041226725177157
+        },
+        {
+          "crude_shock": -5,
+          "crude_now": 84.62,
+          "Linear regression": 3.1734065490576895,
+          "Random forest": 3.2046563699586192
+        },
+        {
+          "crude_shock": 0,
+          "crude_now": 89.62,
+          "Linear regression": 3.202608355813903,
+          "Random forest": 3.205749356635976
+        },
+        {
+          "crude_shock": 5,
+          "crude_now": 94.62,
+          "Linear regression": 3.2318101625701168,
+          "Random forest": 3.230511382428509
+        },
+        {
+          "crude_shock": 10,
+          "crude_now": 99.62,
+          "Linear regression": 3.2610119693263306,
+          "Random forest": 3.233447482506264
+        }
+      ]
+    },
+    "Los Angeles": {
+      "meta": {
+        "label": "Los Angeles",
+        "source": "Real data: Los Angeles weekly retail gasoline (EIA) + WTI crude (DCOILWTICO)",
+        "is_demo": false,
+        "warnings": [
+          "Crude data ends 2026-11-11, but gas prices run through 2026-11-16. The newest week's crude value averages only 2 trading day(s), so the upcoming forecast leans on a stale crude reading. Re-run with --fetch-eia (or re-download DCOILWTICO.csv) once newer days are published."
+        ],
+        "generated": "2026-11-18 13:31",
+        "last_observed_week": "2026-11-16",
+        "forecast_week": "2026-11-23",
+        "current_price": 5.387,
+        "current_crude": 89.62,
+        "train_weeks": 662,
+        "test_weeks": 165,
+        "train_range": [
+          "2010-12-27",
+          "2023-09-11"
+        ],
+        "test_range": [
+          "2023-09-18",
+          "2026-11-09"
+        ]
+      },
+      "Linear regression": {
+        "date": "2026-11-16",
+        "price_now": 5.387,
+        "predicted_next": 5.276365918896937,
+        "actual_next": null,
+        "base_cents": 0.356,
+        "groups_cents": {
+          "Recent pump-price momentum": -7.675,
+          "Crude oil moves": -2.895,
+          "Pump-vs-crude markup gap": 0.256,
+          "Season & holidays": -1.106
+        },
+        "drivers": [
+          {
+            "group": "Recent pump-price momentum",
+            "cents": -7.67,
+            "because": "the pump price fell 17.2\u00a2 this week"
+          },
+          {
+            "group": "Crude oil moves",
+            "cents": -2.9,
+            "because": "crude oil fell $4.42/barrel this week"
+          },
+          {
+            "group": "Season & holidays",
+            "cents": -1.11,
+            "because": "the typical seasonal pattern for that time of year"
+          }
+        ],
+        "summary": "Forecast $5.28, down 11.1\u00a2 from this week's $5.39. Main drivers: Recent pump-price momentum subtracts 7.7\u00a2 (the pump price fell 17.2\u00a2 this week); Crude oil moves subtracts 2.9\u00a2 (crude oil fell $4.42/barrel this week); Season & holidays subtracts 1.1\u00a2 (the typical seasonal pattern for that time of year)."
+      },
+      "Random forest": {
+        "date": "2026-11-16",
+        "price_now": 5.387,
+        "predicted_next": 5.262072354189242,
+        "actual_next": null,
+        "base_cents": 0.349,
+        "groups_cents": {
+          "Recent pump-price momentum": -11.119,
+          "Crude oil moves": -1.824,
+          "Pump-vs-crude markup gap": 0.315,
+          "Season & holidays": -0.214
+        },
+        "drivers": [
+          {
+            "group": "Recent pump-price momentum",
+            "cents": -11.12,
+            "because": "the pump price fell 17.2\u00a2 this week"
+          },
+          {
+            "group": "Crude oil moves",
+            "cents": -1.82,
+            "because": "crude oil fell $4.42/barrel this week"
+          },
+          {
+            "group": "Pump-vs-crude markup gap",
+            "cents": 0.32,
+            "because": "the pump price sits 1\u00a2 above its usual markup over crude"
+          }
+        ],
+        "summary": "Forecast $5.26, down 12.5\u00a2 from this week's $5.39. Main drivers: Recent pump-price momentum subtracts 11.1\u00a2 (the pump price fell 17.2\u00a2 this week); Crude oil moves subtracts 1.8\u00a2 (crude oil fell $4.42/barrel this week); Pump-vs-crude markup gap adds 0.3\u00a2 (the pump price sits 1\u00a2 above its usual markup over crude)."
+      },
+      "scenarios": [
+        {
+          "crude_shock": -10,
+          "crude_now": 79.62,
+          "Linear regression": 5.231633743874902,
+          "Random forest": 5.259831767361575
+        },
+        {
+          "crude_shock": -5,
+          "crude_now": 84.62,
+          "Linear regression": 5.2539998313859195,
+          "Random forest": 5.261480303612042
+        },
+        {
+          "crude_shock": 0,
+          "crude_now": 89.62,
+          "Linear regression": 5.276365918896937,
+          "Random forest": 5.262072354189242
+        },
+        {
+          "crude_shock": 5,
+          "crude_now": 94.62,
+          "Linear regression": 5.298732006407955,
+          "Random forest": 5.284726359977298
+        },
+        {
+          "crude_shock": 10,
+          "crude_now": 99.62,
+          "Linear regression": 5.321098093918973,
+          "Random forest": 5.2971653898324655
+        }
+      ]
+    },
+    "Massachusetts": {
+      "meta": {
+        "label": "Massachusetts",
+        "source": "Real data: Massachusetts weekly retail gasoline (EIA) + WTI crude (DCOILWTICO)",
+        "is_demo": false,
+        "warnings": [
+          "Crude data ends 2026-11-11, but gas prices run through 2026-11-16. The newest week's crude value averages only 2 trading day(s), so the upcoming forecast leans on a stale crude reading. Re-run with --fetch-eia (or re-download DCOILWTICO.csv) once newer days are published."
+        ],
+        "generated": "2026-11-18 13:31",
+        "last_observed_week": "2026-11-16",
+        "forecast_week": "2026-11-23",
+        "current_price": 3.872,
+        "current_crude": 89.62,
+        "train_weeks": 663,
+        "test_weeks": 166,
+        "train_range": [
+          "2010-12-27",
+          "2023-09-04"
+        ],
+        "test_range": [
+          "2023-09-11",
+          "2026-11-09"
+        ]
+      },
+      "Linear regression": {
+        "date": "2026-11-16",
+        "price_now": 3.872,
+        "predicted_next": 3.786578392950953,
+        "actual_next": null,
+        "base_cents": 0.097,
+        "groups_cents": {
+          "Recent pump-price momentum": -5.671,
+          "Crude oil moves": -2.134,
+          "Pump-vs-crude markup gap": 0.047,
+          "Season & holidays": -0.881
+        },
+        "drivers": [
+          {
+            "group": "Recent pump-price momentum",
+            "cents": -5.67,
+            "because": "the pump price fell 13.5\u00a2 this week"
+          },
+          {
+            "group": "Crude oil moves",
+            "cents": -2.13,
+            "because": "crude oil fell $4.42/barrel this week"
+          },
+          {
+            "group": "Season & holidays",
+            "cents": -0.88,
+            "because": "the typical seasonal pattern for that time of year"
+          }
+        ],
+        "summary": "Forecast $3.79, down 8.5\u00a2 from this week's $3.87. Main drivers: Recent pump-price momentum subtracts 5.7\u00a2 (the pump price fell 13.5\u00a2 this week); Crude oil moves subtracts 2.1\u00a2 (crude oil fell $4.42/barrel this week); Season & holidays subtracts 0.9\u00a2 (the typical seasonal pattern for that time of year)."
+      },
+      "Random forest": {
+        "date": "2026-11-16",
+        "price_now": 3.872,
+        "predicted_next": 3.782278696913561,
+        "actual_next": null,
+        "base_cents": 0.087,
+        "groups_cents": {
+          "Recent pump-price momentum": -7.452,
+          "Crude oil moves": -1.354,
+          "Pump-vs-crude markup gap": -0.234,
+          "Season & holidays": -0.019
+        },
+        "drivers": [
+          {
+            "group": "Recent pump-price momentum",
+            "cents": -7.45,
+            "because": "the pump price fell 13.5\u00a2 this week"
+          },
+          {
+            "group": "Crude oil moves",
+            "cents": -1.35,
+            "because": "crude oil fell $4.42/barrel this week"
+          },
+          {
+            "group": "Pump-vs-crude markup gap",
+            "cents": -0.23,
+            "because": "the pump price sits 2\u00a2 above its usual markup over crude"
+          }
+        ],
+        "summary": "Forecast $3.78, down 9.0\u00a2 from this week's $3.87. Main drivers: Recent pump-price momentum subtracts 7.5\u00a2 (the pump price fell 13.5\u00a2 this week); Crude oil moves subtracts 1.4\u00a2 (crude oil fell $4.42/barrel this week); Pump-vs-crude markup gap subtracts 0.2\u00a2 (the pump price sits 2\u00a2 above its usual markup over crude)."
+      },
+      "scenarios": [
+        {
+          "crude_shock": -10,
+          "crude_now": 79.62,
+          "Linear regression": 3.7453740315547925,
+          "Random forest": 3.7822950630406065
+        },
+        {
+          "crude_shock": -5,
+          "crude_now": 84.62,
+          "Linear regression": 3.765976212252873,
+          "Random forest": 3.7822950630406065
+        },
+        {
+          "crude_shock": 0,
+          "crude_now": 89.62,
+          "Linear regression": 3.786578392950953,
+          "Random forest": 3.782278696913561
+        },
+        {
+          "crude_shock": 5,
+          "crude_now": 94.62,
+          "Linear regression": 3.8071805736490334,
+          "Random forest": 3.8030426641835153
+        },
+        {
+          "crude_shock": 10,
+          "crude_now": 99.62,
+          "Linear regression": 3.8277827543471137,
+          "Random forest": 3.8072570666418017
+        }
+      ]
+    },
+    "Miami": {
+      "meta": {
+        "label": "Miami",
+        "source": "Real data: Miami weekly retail gasoline (EIA) + WTI crude (DCOILWTICO)",
+        "is_demo": false,
+        "warnings": [
+          "Crude data ends 2026-11-11, but gas prices run through 2026-11-16. The newest week's crude value averages only 2 trading day(s), so the upcoming forecast leans on a stale crude reading. Re-run with --fetch-eia (or re-download DCOILWTICO.csv) once newer days are published."
+        ],
+        "generated": "2026-11-18 13:31",
+        "last_observed_week": "2026-11-16",
+        "forecast_week": "2026-11-23",
+        "current_price": 3.629,
+        "current_crude": 89.62,
+        "train_weeks": 661,
+        "test_weeks": 165,
+        "train_range": [
+          "2010-12-27",
+          "2023-09-11"
+        ],
+        "test_range": [
+          "2023-09-18",
+          "2026-11-09"
+        ]
+      },
+      "Linear regression": {
+        "date": "2026-11-16",
+        "price_now": 3.629,
+        "predicted_next": 3.5647223058613253,
+        "actual_next": null,
+        "base_cents": 0.077,
+        "groups_cents": {
+          "Recent pump-price momentum": -3.444,
+          "Crude oil moves": -3.107,
+          "Pump-vs-crude markup gap": 0.923,
+          "Season & holidays": -0.876
+        },
+        "drivers": [
+          {
+            "group": "Recent pump-price momentum",
+            "cents": -3.44,
+            "because": "the pump price fell 16.2\u00a2 this week"
+          },
+          {
+            "group": "Crude oil moves",
+            "cents": -3.11,
+            "because": "crude oil fell $4.42/barrel this week"
+          },
+          {
+            "group": "Pump-vs-crude markup gap",
+            "cents": 0.92,
+            "because": "the pump price sits 15\u00a2 below its usual markup over crude"
+          }
+        ],
+        "summary": "Forecast $3.56, down 6.4\u00a2 from this week's $3.63. Main drivers: Recent pump-price momentum subtracts 3.4\u00a2 (the pump price fell 16.2\u00a2 this week); Crude oil moves subtracts 3.1\u00a2 (crude oil fell $4.42/barrel this week); Pump-vs-crude markup gap adds 0.9\u00a2 (the pump price sits 15\u00a2 below its usual markup over crude)."
+      },
+      "Random forest": {
+        "date": "2026-11-16",
+        "price_now": 3.629,
+        "predicted_next": 3.554701866539077,
+        "actual_next": null,
+        "base_cents": 0.056,
+        "groups_cents": {
+          "Recent pump-price momentum": -4.129,
+          "Crude oil moves": -3.623,
+          "Pump-vs-crude markup gap": 0.441,
+          "Season & holidays": -0.175
+        },
+        "drivers": [
+          {
+            "group": "Recent pump-price momentum",
+            "cents": -4.13,
+            "because": "the pump price fell 16.2\u00a2 this week"
+          },
+          {
+            "group": "Crude oil moves",
+            "cents": -3.62,
+            "because": "crude oil fell $4.42/barrel this week"
+          },
+          {
+            "group": "Pump-vs-crude markup gap",
+            "cents": 0.44,
+            "because": "the pump price sits 15\u00a2 below its usual markup over crude"
+          }
+        ],
+        "summary": "Forecast $3.55, down 7.4\u00a2 from this week's $3.63. Main drivers: Recent pump-price momentum subtracts 4.1\u00a2 (the pump price fell 16.2\u00a2 this week); Crude oil moves subtracts 3.6\u00a2 (crude oil fell $4.42/barrel this week); Pump-vs-crude markup gap adds 0.4\u00a2 (the pump price sits 15\u00a2 below its usual markup over crude)."
+      },
+      "scenarios": [
+        {
+          "crude_shock": -10,
+          "crude_now": 79.62,
+          "Linear regression": 3.477548183675621,
+          "Random forest": 3.542003349107529
+        },
+        {
+          "crude_shock": -5,
+          "crude_now": 84.62,
+          "Linear regression": 3.521135244768473,
+          "Random forest": 3.5457872556162595
+        },
+        {
+          "crude_shock": 0,
+          "crude_now": 89.62,
+          "Linear regression": 3.5647223058613253,
+          "Random forest": 3.554701866539077
+        },
+        {
+          "crude_shock": 5,
+          "crude_now": 94.62,
+          "Linear regression": 3.6083093669541775,
+          "Random forest": 3.597060267219747
+        },
+        {
+          "crude_shock": 10,
+          "crude_now": 99.62,
+          "Linear regression": 3.6518964280470296,
+          "Random forest": 3.614271536936291
+        }
+      ]
+    },
+    "Minnesota": {
+      "meta": {
+        "label": "Minnesota",
+        "source": "Real data: Minnesota weekly retail gasoline (EIA) + WTI crude (DCOILWTICO)",
+        "is_demo": false,
+        "warnings": [
+          "Crude data ends 2026-11-11, but gas prices run through 2026-11-16. The newest week's crude value averages only 2 trading day(s), so the upcoming forecast leans on a stale crude reading. Re-run with --fetch-eia (or re-download DCOILWTICO.csv) once newer days are published."
+        ],
+        "generated": "2026-11-18 13:31",
+        "last_observed_week": "2026-11-16",
+        "forecast_week": "2026-11-23",
+        "current_price": 3.608,
+        "current_crude": 89.62,
+        "train_weeks": 663,
+        "test_weeks": 166,
+        "train_range": [
+          "2010-12-27",
+          "2023-09-04"
+        ],
+        "test_range": [
+          "2023-09-11",
+          "2026-11-09"
+        ]
+      },
+      "Linear regression": {
+        "date": "2026-11-16",
+        "price_now": 3.608,
+        "predicted_next": 3.5082271016546756,
+        "actual_next": null,
+        "base_cents": 0.14,
+        "groups_cents": {
+          "Recent pump-price momentum": -7.133,
+          "Crude oil moves": -2.345,
+          "Pump-vs-crude markup gap": 1.063,
+          "Season & holidays": -1.703
+        },
+        "drivers": [
+          {
+            "group": "Recent pump-price momentum",
+            "cents": -7.13,
+            "because": "the pump price fell 24.1\u00a2 this week"
+          },
+          {
+            "group": "Crude oil moves",
+            "cents": -2.34,
+            "because": "crude oil fell $4.42/barrel this week"
+          },
+          {
+            "group": "Season & holidays",
+            "cents": -1.7,
+            "because": "the typical seasonal pattern for that time of year"
+          }
+        ],
+        "summary": "Forecast $3.51, down 10.0\u00a2 from this week's $3.61. Main drivers: Recent pump-price momentum subtracts 7.1\u00a2 (the pump price fell 24.1\u00a2 this week); Crude oil moves subtracts 2.3\u00a2 (crude oil fell $4.42/barrel this week); Season & holidays subtracts 1.7\u00a2 (the typical seasonal pattern for that time of year)."
+      },
+      "Random forest": {
+        "date": "2026-11-16",
+        "price_now": 3.608,
+        "predicted_next": 3.5419063279819563,
+        "actual_next": null,
+        "base_cents": 0.118,
+        "groups_cents": {
+          "Recent pump-price momentum": -5.484,
+          "Crude oil moves": -0.556,
+          "Pump-vs-crude markup gap": 0.273,
+          "Season & holidays": -0.96
+        },
+        "drivers": [
+          {
+            "group": "Recent pump-price momentum",
+            "cents": -5.48,
+            "because": "the pump price fell 24.1\u00a2 this week"
+          },
+          {
+            "group": "Season & holidays",
+            "cents": -0.96,
+            "because": "the typical seasonal pattern for that time of year"
+          },
+          {
+            "group": "Crude oil moves",
+            "cents": -0.56,
+            "because": "crude oil fell $4.42/barrel this week"
+          }
+        ],
+        "summary": "Forecast $3.54, down 6.6\u00a2 from this week's $3.61. Main drivers: Recent pump-price momentum subtracts 5.5\u00a2 (the pump price fell 24.1\u00a2 this week); Season & holidays subtracts 1.0\u00a2 (the typical seasonal pattern for that time of year); Crude oil moves subtracts 0.6\u00a2 (crude oil fell $4.42/barrel this week)."
+      },
+      "scenarios": [
+        {
+          "crude_shock": -10,
+          "crude_now": 79.62,
+          "Linear regression": 3.4500895554907753,
+          "Random forest": 3.5382309290332103
+        },
+        {
+          "crude_shock": -5,
+          "crude_now": 84.62,
+          "Linear regression": 3.4791583285727254,
+          "Random forest": 3.5377657812976775
+        },
+        {
+          "crude_shock": 0,
+          "crude_now": 89.62,
+          "Linear regression": 3.5082271016546756,
+          "Random forest": 3.5419063279819563
+        },
+        {
+          "crude_shock": 5,
+          "crude_now": 94.62,
+          "Linear regression": 3.5372958747366257,
+          "Random forest": 3.5579917666936005
+        },
+        {
+          "crude_shock": 10,
+          "crude_now": 99.62,
+          "Linear regression": 3.566364647818576,
+          "Random forest": 3.5578594286568404
+        }
+      ]
+    },
+    "New York": {
+      "meta": {
+        "label": "New York",
+        "source": "Real data: New York weekly retail gasoline (EIA) + WTI crude (DCOILWTICO)",
+        "is_demo": false,
+        "warnings": [
+          "Crude data ends 2026-11-11, but gas prices run through 2026-11-16. The newest week's crude value averages only 2 trading day(s), so the upcoming forecast leans on a stale crude reading. Re-run with --fetch-eia (or re-download DCOILWTICO.csv) once newer days are published."
+        ],
+        "generated": "2026-11-18 13:31",
+        "last_observed_week": "2026-11-16",
+        "forecast_week": "2026-11-23",
+        "current_price": 4.063,
+        "current_crude": 89.62,
+        "train_weeks": 663,
+        "test_weeks": 166,
+        "train_range": [
+          "2010-12-27",
+          "2023-09-04"
+        ],
+        "test_range": [
+          "2023-09-11",
+          "2026-11-09"
+        ]
+      },
+      "Linear regression": {
+        "date": "2026-11-16",
+        "price_now": 4.063,
+        "predicted_next": 4.012916540497814,
+        "actual_next": null,
+        "base_cents": 0.078,
+        "groups_cents": {
+          "Recent pump-price momentum": -2.376,
+          "Crude oil moves": -1.673,
+          "Pump-vs-crude markup gap": -0.335,
+          "Season & holidays": -0.703
+        },
+        "drivers": [
+          {
+            "group": "Recent pump-price momentum",
+            "cents": -2.38,
+            "because": "the pump price fell 5.3\u00a2 this week"
+          },
+          {
+            "group": "Crude oil moves",
+            "cents": -1.67,
+            "because": "crude oil fell $4.42/barrel this week"
+          },
+          {
+            "group": "Season & holidays",
+            "cents": -0.7,
+            "because": "the typical seasonal pattern for that time of year"
+          }
+        ],
+        "summary": "Forecast $4.01, down 5.0\u00a2 from this week's $4.06. Main drivers: Recent pump-price momentum subtracts 2.4\u00a2 (the pump price fell 5.3\u00a2 this week); Crude oil moves subtracts 1.7\u00a2 (crude oil fell $4.42/barrel this week); Season & holidays subtracts 0.7\u00a2 (the typical seasonal pattern for that time of year)."
+      },
+      "Random forest": {
+        "date": "2026-11-16",
+        "price_now": 4.063,
+        "predicted_next": 4.010519854569626,
+        "actual_next": null,
+        "base_cents": 0.069,
+        "groups_cents": {
+          "Recent pump-price momentum": -3.178,
+          "Crude oil moves": -1.895,
+          "Pump-vs-crude markup gap": -0.15,
+          "Season & holidays": -0.095
+        },
+        "drivers": [
+          {
+            "group": "Recent pump-price momentum",
+            "cents": -3.18,
+            "because": "the pump price fell 10.1\u00a2 last week"
+          },
+          {
+            "group": "Crude oil moves",
+            "cents": -1.89,
+            "because": "crude oil fell $4.42/barrel this week"
+          }
+        ],
+        "summary": "Forecast $4.01, down 5.2\u00a2 from this week's $4.06. Main drivers: Recent pump-price momentum subtracts 3.2\u00a2 (the pump price fell 10.1\u00a2 last week); Crude oil moves subtracts 1.9\u00a2 (crude oil fell $4.42/barrel this week)."
+      },
+      "scenarios": [
+        {
+          "crude_shock": -10,
+          "crude_now": 79.62,
+          "Linear regression": 3.974699768313306,
+          "Random forest": 4.009321572492018
+        },
+        {
+          "crude_shock": -5,
+          "crude_now": 84.62,
+          "Linear regression": 3.99380815440556,
+          "Random forest": 4.009752564575605
+        },
+        {
+          "crude_shock": 0,
+          "crude_now": 89.62,
+          "Linear regression": 4.012916540497814,
+          "Random forest": 4.010519854569626
+        },
+        {
+          "crude_shock": 5,
+          "crude_now": 94.62,
+          "Linear regression": 4.0320249265900685,
+          "Random forest": 4.025539117662322
+        },
+        {
+          "crude_shock": 10,
+          "crude_now": 99.62,
+          "Linear regression": 4.051133312682322,
+          "Random forest": 4.032532645696485
+        }
+      ]
+    },
+    "New York City": {
+      "meta": {
+        "label": "New York City",
+        "source": "Real data: New York City weekly retail gasoline (EIA) + WTI crude (DCOILWTICO)",
+        "is_demo": false,
+        "warnings": [
+          "Crude data ends 2026-11-11, but gas prices run through 2026-11-16. The newest week's crude value averages only 2 trading day(s), so the upcoming forecast leans on a stale crude reading. Re-run with --fetch-eia (or re-download DCOILWTICO.csv) once newer days are published."
+        ],
+        "generated": "2026-11-18 13:32",
+        "last_observed_week": "2026-11-16",
+        "forecast_week": "2026-11-23",
+        "current_price": 3.96,
+        "current_crude": 89.62,
+        "train_weeks": 663,
+        "test_weeks": 166,
+        "train_range": [
+          "2010-12-27",
+          "2023-09-04"
+        ],
+        "test_range": [
+          "2023-09-11",
+          "2026-11-09"
+        ]
+      },
+      "Linear regression": {
+        "date": "2026-11-16",
+        "price_now": 3.96,
+        "predicted_next": 3.909557097572162,
+        "actual_next": null,
+        "base_cents": 0.084,
+        "groups_cents": {
+          "Recent pump-price momentum": -2.468,
+          "Crude oil moves": -1.55,
+          "Pump-vs-crude markup gap": -0.254,
+          "Season & holidays": -0.856
+        },
+        "drivers": [
+          {
+            "group": "Recent pump-price momentum",
+            "cents": -2.47,
+            "because": "the pump price fell 5.2\u00a2 this week"
+          },
+          {
+            "group": "Crude oil moves",
+            "cents": -1.55,
+            "because": "crude oil fell $4.42/barrel this week"
+          },
+          {
+            "group": "Season & holidays",
+            "cents": -0.86,
+            "because": "the typical seasonal pattern for that time of year"
+          }
+        ],
+        "summary": "Forecast $3.91, down 5.0\u00a2 from this week's $3.96. Main drivers: Recent pump-price momentum subtracts 2.5\u00a2 (the pump price fell 5.2\u00a2 this week); Crude oil moves subtracts 1.6\u00a2 (crude oil fell $4.42/barrel this week); Season & holidays subtracts 0.9\u00a2 (the typical seasonal pattern for that time of year)."
+      },
+      "Random forest": {
+        "date": "2026-11-16",
+        "price_now": 3.96,
+        "predicted_next": 3.910349607941336,
+        "actual_next": null,
+        "base_cents": 0.072,
+        "groups_cents": {
+          "Recent pump-price momentum": -2.959,
+          "Crude oil moves": -1.738,
+          "Pump-vs-crude markup gap": -0.278,
+          "Season & holidays": -0.061
+        },
+        "drivers": [
+          {
+            "group": "Recent pump-price momentum",
+            "cents": -2.96,
+            "because": "the pump price fell 10.2\u00a2 last week"
+          },
+          {
+            "group": "Crude oil moves",
+            "cents": -1.74,
+            "because": "crude oil fell $4.42/barrel this week"
+          },
+          {
+            "group": "Pump-vs-crude markup gap",
+            "cents": -0.28,
+            "because": "the pump price sits 9\u00a2 above its usual markup over crude"
+          }
+        ],
+        "summary": "Forecast $3.91, down 5.0\u00a2 from this week's $3.96. Main drivers: Recent pump-price momentum subtracts 3.0\u00a2 (the pump price fell 10.2\u00a2 last week); Crude oil moves subtracts 1.7\u00a2 (crude oil fell $4.42/barrel this week); Pump-vs-crude markup gap subtracts 0.3\u00a2 (the pump price sits 9\u00a2 above its usual markup over crude)."
+      },
+      "scenarios": [
+        {
+          "crude_shock": -10,
+          "crude_now": 79.62,
+          "Linear regression": 3.867588924815769,
+          "Random forest": 3.909983567439755
+        },
+        {
+          "crude_shock": -5,
+          "crude_now": 84.62,
+          "Linear regression": 3.8885730111939654,
+          "Random forest": 3.909872676323547
+        },
+        {
+          "crude_shock": 0,
+          "crude_now": 89.62,
+          "Linear regression": 3.909557097572162,
+          "Random forest": 3.910349607941336
+        },
+        {
+          "crude_shock": 5,
+          "crude_now": 94.62,
+          "Linear regression": 3.9305411839503583,
+          "Random forest": 3.9331885049899102
+        },
+        {
+          "crude_shock": 10,
+          "crude_now": 99.62,
+          "Linear regression": 3.9515252703285553,
+          "Random forest": 3.938353789504369
+        }
+      ]
+    },
+    "Ohio": {
+      "meta": {
+        "label": "Ohio",
+        "source": "Real data: Ohio weekly retail gasoline (EIA) + WTI crude (DCOILWTICO)",
+        "is_demo": false,
+        "warnings": [
+          "Crude data ends 2026-11-11, but gas prices run through 2026-11-16. The newest week's crude value averages only 2 trading day(s), so the upcoming forecast leans on a stale crude reading. Re-run with --fetch-eia (or re-download DCOILWTICO.csv) once newer days are published."
+        ],
+        "generated": "2026-11-18 13:32",
+        "last_observed_week": "2026-11-16",
+        "forecast_week": "2026-11-23",
+        "current_price": 3.396,
+        "current_crude": 89.62,
+        "train_weeks": 662,
+        "test_weeks": 166,
+        "train_range": [
+          "2010-12-27",
+          "2023-09-04"
+        ],
+        "test_range": [
+          "2023-09-11",
+          "2026-11-09"
+        ]
+      },
+      "Linear regression": {
+        "date": "2026-11-16",
+        "price_now": 3.396,
+        "predicted_next": 3.4042984336128828,
+        "actual_next": null,
+        "base_cents": 0.062,
+        "groups_cents": {
+          "Recent pump-price momentum": 3.302,
+          "Crude oil moves": -5.916,
+          "Pump-vs-crude markup gap": 7.001,
+          "Season & holidays": -3.618
+        },
+        "drivers": [
+          {
+            "group": "Pump-vs-crude markup gap",
+            "cents": 7.0,
+            "because": "the pump price sits 36\u00a2 below its usual markup over crude"
+          },
+          {
+            "group": "Crude oil moves",
+            "cents": -5.92,
+            "because": "crude oil fell $4.42/barrel this week"
+          },
+          {
+            "group": "Season & holidays",
+            "cents": -3.62,
+            "because": "the typical seasonal pattern for that time of year"
+          }
+        ],
+        "summary": "Forecast $3.40, up 0.8\u00a2 from this week's $3.40. Main drivers: Pump-vs-crude markup gap adds 7.0\u00a2 (the pump price sits 36\u00a2 below its usual markup over crude); Crude oil moves subtracts 5.9\u00a2 (crude oil fell $4.42/barrel this week); Season & holidays subtracts 3.6\u00a2 (the typical seasonal pattern for that time of year)."
+      },
+      "Random forest": {
+        "date": "2026-11-16",
+        "price_now": 3.396,
+        "predicted_next": 3.31317495243841,
+        "actual_next": null,
+        "base_cents": 0.076,
+        "groups_cents": {
+          "Recent pump-price momentum": -3.273,
+          "Crude oil moves": -6.323,
+          "Pump-vs-crude markup gap": 2.151,
+          "Season & holidays": -0.915
+        },
+        "drivers": [
+          {
+            "group": "Crude oil moves",
+            "cents": -6.32,
+            "because": "crude oil fell $4.42/barrel this week"
+          },
+          {
+            "group": "Recent pump-price momentum",
+            "cents": -3.27,
+            "because": "the pump price fell 37.2\u00a2 this week"
+          },
+          {
+            "group": "Pump-vs-crude markup gap",
+            "cents": 2.15,
+            "because": "the pump price sits 36\u00a2 below its usual markup over crude"
+          }
+        ],
+        "summary": "Forecast $3.31, down 8.3\u00a2 from this week's $3.40. Main drivers: Crude oil moves subtracts 6.3\u00a2 (crude oil fell $4.42/barrel this week); Recent pump-price momentum subtracts 3.3\u00a2 (the pump price fell 37.2\u00a2 this week); Pump-vs-crude markup gap adds 2.1\u00a2 (the pump price sits 36\u00a2 below its usual markup over crude)."
+      },
+      "scenarios": [
+        {
+          "crude_shock": -10,
+          "crude_now": 79.62,
+          "Linear regression": 3.278753077488136,
+          "Random forest": 3.304189608509872
+        },
+        {
+          "crude_shock": -5,
+          "crude_now": 84.62,
+          "Linear regression": 3.3415257555505096,
+          "Random forest": 3.31100938422676
+        },
+        {
+          "crude_shock": 0,
+          "crude_now": 89.62,
+          "Linear regression": 3.4042984336128828,
+          "Random forest": 3.3131749524384104
+        },
+        {
+          "crude_shock": 5,
+          "crude_now": 94.62,
+          "Linear regression": 3.4670711116752564,
+          "Random forest": 3.410199100875806
+        },
+        {
+          "crude_shock": 10,
+          "crude_now": 99.62,
+          "Linear regression": 3.52984378973763,
+          "Random forest": 3.408870458862219
+        }
+      ]
+    },
+    "San Francisco": {
+      "meta": {
+        "label": "San Francisco",
+        "source": "Real data: San Francisco weekly retail gasoline (EIA) + WTI crude (DCOILWTICO)",
+        "is_demo": false,
+        "warnings": [
+          "Crude data ends 2026-11-11, but gas prices run through 2026-11-16. The newest week's crude value averages only 2 trading day(s), so the upcoming forecast leans on a stale crude reading. Re-run with --fetch-eia (or re-download DCOILWTICO.csv) once newer days are published."
+        ],
+        "generated": "2026-11-18 13:32",
+        "last_observed_week": "2026-11-16",
+        "forecast_week": "2026-11-23",
+        "current_price": 5.289,
+        "current_crude": 89.62,
+        "train_weeks": 663,
+        "test_weeks": 166,
+        "train_range": [
+          "2010-12-27",
+          "2023-09-04"
+        ],
+        "test_range": [
+          "2023-09-11",
+          "2026-11-09"
+        ]
+      },
+      "Linear regression": {
+        "date": "2026-11-16",
+        "price_now": 5.289,
+        "predicted_next": 5.196293646353648,
+        "actual_next": null,
+        "base_cents": 0.295,
+        "groups_cents": {
+          "Recent pump-price momentum": -7.671,
+          "Crude oil moves": -1.92,
+          "Pump-vs-crude markup gap": 1.203,
+          "Season & holidays": -1.177
+        },
+        "drivers": [
+          {
+            "group": "Recent pump-price momentum",
+            "cents": -7.67,
+            "because": "the pump price fell 15.8\u00a2 this week"
+          },
+          {
+            "group": "Crude oil moves",
+            "cents": -1.92,
+            "because": "crude oil fell $4.42/barrel this week"
+          },
+          {
+            "group": "Pump-vs-crude markup gap",
+            "cents": 1.2,
+            "because": "the pump price sits 15\u00a2 below its usual markup over crude"
+          }
+        ],
+        "summary": "Forecast $5.20, down 9.3\u00a2 from this week's $5.29. Main drivers: Recent pump-price momentum subtracts 7.7\u00a2 (the pump price fell 15.8\u00a2 this week); Crude oil moves subtracts 1.9\u00a2 (crude oil fell $4.42/barrel this week); Pump-vs-crude markup gap adds 1.2\u00a2 (the pump price sits 15\u00a2 below its usual markup over crude)."
+      },
+      "Random forest": {
+        "date": "2026-11-16",
+        "price_now": 5.289,
+        "predicted_next": 5.172261139281232,
+        "actual_next": null,
+        "base_cents": 0.27,
+        "groups_cents": {
+          "Recent pump-price momentum": -10.308,
+          "Crude oil moves": -1.651,
+          "Pump-vs-crude markup gap": 0.441,
+          "Season & holidays": -0.426
+        },
+        "drivers": [
+          {
+            "group": "Recent pump-price momentum",
+            "cents": -10.31,
+            "because": "the pump price fell 15.8\u00a2 this week"
+          },
+          {
+            "group": "Crude oil moves",
+            "cents": -1.65,
+            "because": "crude oil fell $4.42/barrel this week"
+          },
+          {
+            "group": "Pump-vs-crude markup gap",
+            "cents": 0.44,
+            "because": "the pump price sits 15\u00a2 below its usual markup over crude"
+          }
+        ],
+        "summary": "Forecast $5.17, down 11.7\u00a2 from this week's $5.29. Main drivers: Recent pump-price momentum subtracts 10.3\u00a2 (the pump price fell 15.8\u00a2 this week); Crude oil moves subtracts 1.6\u00a2 (crude oil fell $4.42/barrel this week); Pump-vs-crude markup gap adds 0.4\u00a2 (the pump price sits 15\u00a2 below its usual markup over crude)."
+      },
+      "scenarios": [
+        {
+          "crude_shock": -10,
+          "crude_now": 79.62,
+          "Linear regression": 5.149024079683321,
+          "Random forest": 5.169420167980235
+        },
+        {
+          "crude_shock": -5,
+          "crude_now": 84.62,
+          "Linear regression": 5.172658863018484,
+          "Random forest": 5.171167264913272
+        },
+        {
+          "crude_shock": 0,
+          "crude_now": 89.62,
+          "Linear regression": 5.196293646353648,
+          "Random forest": 5.172261139281232
+        },
+        {
+          "crude_shock": 5,
+          "crude_now": 94.62,
+          "Linear regression": 5.219928429688811,
+          "Random forest": 5.196744307008859
+        },
+        {
+          "crude_shock": 10,
+          "crude_now": 99.62,
+          "Linear regression": 5.243563213023974,
+          "Random forest": 5.201078589694965
+        }
+      ]
+    },
+    "Seattle": {
+      "meta": {
+        "label": "Seattle",
+        "source": "Real data: Seattle weekly retail gasoline (EIA) + WTI crude (DCOILWTICO)",
+        "is_demo": false,
+        "warnings": [
+          "Crude data ends 2026-11-11, but gas prices run through 2026-11-16. The newest week's crude value averages only 2 trading day(s), so the upcoming forecast leans on a stale crude reading. Re-run with --fetch-eia (or re-download DCOILWTICO.csv) once newer days are published."
+        ],
+        "generated": "2026-11-18 13:32",
+        "last_observed_week": "2026-11-16",
+        "forecast_week": "2026-11-23",
+        "current_price": 4.894,
+        "current_crude": 89.62,
+        "train_weeks": 660,
+        "test_weeks": 165,
+        "train_range": [
+          "2010-12-27",
+          "2023-09-11"
+        ],
+        "test_range": [
+          "2023-09-18",
+          "2026-11-09"
+        ]
+      },
+      "Linear regression": {
+        "date": "2026-11-16",
+        "price_now": 4.894,
+        "predicted_next": 4.810067809819281,
+        "actual_next": null,
+        "base_cents": 0.287,
+        "groups_cents": {
+          "Recent pump-price momentum": -8.715,
+          "Crude oil moves": -0.673,
+          "Pump-vs-crude markup gap": 1.915,
+          "Season & holidays": -1.207
+        },
+        "drivers": [
+          {
+            "group": "Recent pump-price momentum",
+            "cents": -8.71,
+            "because": "the pump price fell 17.6\u00a2 this week"
+          },
+          {
+            "group": "Pump-vs-crude markup gap",
+            "cents": 1.91,
+            "because": "the pump price sits 30\u00a2 below its usual markup over crude"
+          },
+          {
+            "group": "Season & holidays",
+            "cents": -1.21,
+            "because": "the typical seasonal pattern for that time of year"
+          }
+        ],
+        "summary": "Forecast $4.81, down 8.4\u00a2 from this week's $4.89. Main drivers: Recent pump-price momentum subtracts 8.7\u00a2 (the pump price fell 17.6\u00a2 this week); Pump-vs-crude markup gap adds 1.9\u00a2 (the pump price sits 30\u00a2 below its usual markup over crude); Season & holidays subtracts 1.2\u00a2 (the typical seasonal pattern for that time of year)."
+      },
+      "Random forest": {
+        "date": "2026-11-16",
+        "price_now": 4.894,
+        "predicted_next": 4.788584566283187,
+        "actual_next": null,
+        "base_cents": 0.243,
+        "groups_cents": {
+          "Recent pump-price momentum": -9.686,
+          "Crude oil moves": -1.353,
+          "Pump-vs-crude markup gap": 0.502,
+          "Season & holidays": -0.247
+        },
+        "drivers": [
+          {
+            "group": "Recent pump-price momentum",
+            "cents": -9.69,
+            "because": "the pump price fell 17.6\u00a2 this week"
+          },
+          {
+            "group": "Crude oil moves",
+            "cents": -1.35,
+            "because": "crude oil fell $4.42/barrel this week"
+          },
+          {
+            "group": "Pump-vs-crude markup gap",
+            "cents": 0.5,
+            "because": "the pump price sits 30\u00a2 below its usual markup over crude"
+          }
+        ],
+        "summary": "Forecast $4.79, down 10.5\u00a2 from this week's $4.89. Main drivers: Recent pump-price momentum subtracts 9.7\u00a2 (the pump price fell 17.6\u00a2 this week); Crude oil moves subtracts 1.4\u00a2 (crude oil fell $4.42/barrel this week); Pump-vs-crude markup gap adds 0.5\u00a2 (the pump price sits 30\u00a2 below its usual markup over crude)."
+      },
+      "scenarios": [
+        {
+          "crude_shock": -10,
+          "crude_now": 79.62,
+          "Linear regression": 4.790853741152356,
+          "Random forest": 4.783845488084295
+        },
+        {
+          "crude_shock": -5,
+          "crude_now": 84.62,
+          "Linear regression": 4.800460775485819,
+          "Random forest": 4.787814998300243
+        },
+        {
+          "crude_shock": 0,
+          "crude_now": 89.62,
+          "Linear regression": 4.810067809819281,
+          "Random forest": 4.788584566283187
+        },
+        {
+          "crude_shock": 5,
+          "crude_now": 94.62,
+          "Linear regression": 4.819674844152743,
+          "Random forest": 4.806240195383127
+        },
+        {
+          "crude_shock": 10,
+          "crude_now": 99.62,
+          "Linear regression": 4.8292818784862055,
+          "Random forest": 4.808186620623984
+        }
+      ]
+    },
+    "Texas": {
+      "meta": {
+        "label": "Texas",
+        "source": "Real data: Texas weekly retail gasoline (EIA) + WTI crude (DCOILWTICO)",
+        "is_demo": false,
+        "warnings": [
+          "Crude data ends 2026-11-11, but gas prices run through 2026-11-16. The newest week's crude value averages only 2 trading day(s), so the upcoming forecast leans on a stale crude reading. Re-run with --fetch-eia (or re-download DCOILWTICO.csv) once newer days are published."
+        ],
+        "generated": "2026-11-18 13:32",
+        "last_observed_week": "2026-11-16",
+        "forecast_week": "2026-11-23",
+        "current_price": 3.216,
+        "current_crude": 89.62,
+        "train_weeks": 663,
+        "test_weeks": 166,
+        "train_range": [
+          "2010-12-27",
+          "2023-09-04"
+        ],
+        "test_range": [
+          "2023-09-11",
+          "2026-11-09"
+        ]
+      },
+      "Linear regression": {
+        "date": "2026-11-16",
+        "price_now": 3.216,
+        "predicted_next": 3.137472753590161,
+        "actual_next": null,
+        "base_cents": 0.067,
+        "groups_cents": {
+          "Recent pump-price momentum": -6.242,
+          "Crude oil moves": -1.763,
+          "Pump-vs-crude markup gap": 1.485,
+          "Season & holidays": -1.4
+        },
+        "drivers": [
+          {
+            "group": "Recent pump-price momentum",
+            "cents": -6.24,
+            "because": "the pump price fell 19.2\u00a2 this week"
+          },
+          {
+            "group": "Crude oil moves",
+            "cents": -1.76,
+            "because": "crude oil fell $4.42/barrel this week"
+          },
+          {
+            "group": "Pump-vs-crude markup gap",
+            "cents": 1.49,
+            "because": "the pump price sits 21\u00a2 below its usual markup over crude"
+          }
+        ],
+        "summary": "Forecast $3.14, down 7.9\u00a2 from this week's $3.22. Main drivers: Recent pump-price momentum subtracts 6.2\u00a2 (the pump price fell 19.2\u00a2 this week); Crude oil moves subtracts 1.8\u00a2 (crude oil fell $4.42/barrel this week); Pump-vs-crude markup gap adds 1.5\u00a2 (the pump price sits 21\u00a2 below its usual markup over crude)."
+      },
+      "Random forest": {
+        "date": "2026-11-16",
+        "price_now": 3.216,
+        "predicted_next": 3.1076851676910344,
+        "actual_next": null,
+        "base_cents": 0.048,
+        "groups_cents": {
+          "Recent pump-price momentum": -7.402,
+          "Crude oil moves": -3.195,
+          "Pump-vs-crude markup gap": 0.109,
+          "Season & holidays": -0.392
+        },
+        "drivers": [
+          {
+            "group": "Recent pump-price momentum",
+            "cents": -7.4,
+            "because": "the pump price fell 19.2\u00a2 this week"
+          },
+          {
+            "group": "Crude oil moves",
+            "cents": -3.19,
+            "because": "crude oil fell $4.42/barrel this week"
+          },
+          {
+            "group": "Season & holidays",
+            "cents": -0.39,
+            "because": "the typical seasonal pattern for that time of year"
+          }
+        ],
+        "summary": "Forecast $3.11, down 10.8\u00a2 from this week's $3.22. Main drivers: Recent pump-price momentum subtracts 7.4\u00a2 (the pump price fell 19.2\u00a2 this week); Crude oil moves subtracts 3.2\u00a2 (crude oil fell $4.42/barrel this week); Season & holidays subtracts 0.4\u00a2 (the typical seasonal pattern for that time of year)."
+      },
+      "scenarios": [
+        {
+          "crude_shock": -10,
+          "crude_now": 79.62,
+          "Linear regression": 3.0504846226512035,
+          "Random forest": 3.1049989202222656
+        },
+        {
+          "crude_shock": -5,
+          "crude_now": 84.62,
+          "Linear regression": 3.093978688120682,
+          "Random forest": 3.105456931585902
+        },
+        {
+          "crude_shock": 0,
+          "crude_now": 89.62,
+          "Linear regression": 3.137472753590161,
+          "Random forest": 3.1076851676910344
+        },
+        {
+          "crude_shock": 5,
+          "crude_now": 94.62,
+          "Linear regression": 3.1809668190596403,
+          "Random forest": 3.158092876508379
+        },
+        {
+          "crude_shock": 10,
+          "crude_now": 99.62,
+          "Linear regression": 3.224460884529119,
+          "Random forest": 3.161751031319838
+        }
+      ]
+    },
+    "Washington": {
+      "meta": {
+        "label": "Washington",
+        "source": "Real data: Washington weekly retail gasoline (EIA) + WTI crude (DCOILWTICO)",
+        "is_demo": false,
+        "warnings": [
+          "Crude data ends 2026-11-11, but gas prices run through 2026-11-16. The newest week's crude value averages only 2 trading day(s), so the upcoming forecast leans on a stale crude reading. Re-run with --fetch-eia (or re-download DCOILWTICO.csv) once newer days are published."
+        ],
+        "generated": "2026-11-18 13:32",
+        "last_observed_week": "2026-11-16",
+        "forecast_week": "2026-11-23",
+        "current_price": 4.714,
+        "current_crude": 89.62,
+        "train_weeks": 663,
+        "test_weeks": 166,
+        "train_range": [
+          "2010-12-27",
+          "2023-09-04"
+        ],
+        "test_range": [
+          "2023-09-11",
+          "2026-11-09"
+        ]
+      },
+      "Linear regression": {
+        "date": "2026-11-16",
+        "price_now": 4.714,
+        "predicted_next": 4.638250450964681,
+        "actual_next": null,
+        "base_cents": 0.267,
+        "groups_cents": {
+          "Recent pump-price momentum": -7.995,
+          "Crude oil moves": -0.117,
+          "Pump-vs-crude markup gap": 1.56,
+          "Season & holidays": -1.29
+        },
+        "drivers": [
+          {
+            "group": "Recent pump-price momentum",
+            "cents": -7.99,
+            "because": "the pump price fell 16.0\u00a2 this week"
+          },
+          {
+            "group": "Pump-vs-crude markup gap",
+            "cents": 1.56,
+            "because": "the pump price sits 26\u00a2 below its usual markup over crude"
+          },
+          {
+            "group": "Season & holidays",
+            "cents": -1.29,
+            "because": "the typical seasonal pattern for that time of year"
+          }
+        ],
+        "summary": "Forecast $4.64, down 7.6\u00a2 from this week's $4.71. Main drivers: Recent pump-price momentum subtracts 8.0\u00a2 (the pump price fell 16.0\u00a2 this week); Pump-vs-crude markup gap adds 1.6\u00a2 (the pump price sits 26\u00a2 below its usual markup over crude); Season & holidays subtracts 1.3\u00a2 (the typical seasonal pattern for that time of year)."
+      },
+      "Random forest": {
+        "date": "2026-11-16",
+        "price_now": 4.714,
+        "predicted_next": 4.604493614051052,
+        "actual_next": null,
+        "base_cents": 0.258,
+        "groups_cents": {
+          "Recent pump-price momentum": -10.369,
+          "Crude oil moves": -0.94,
+          "Pump-vs-crude markup gap": 0.327,
+          "Season & holidays": -0.227
+        },
+        "drivers": [
+          {
+            "group": "Recent pump-price momentum",
+            "cents": -10.37,
+            "because": "the pump price fell 16.0\u00a2 this week"
+          },
+          {
+            "group": "Crude oil moves",
+            "cents": -0.94,
+            "because": "crude oil fell $4.42/barrel this week"
+          },
+          {
+            "group": "Pump-vs-crude markup gap",
+            "cents": 0.33,
+            "because": "the pump price sits 26\u00a2 below its usual markup over crude"
+          }
+        ],
+        "summary": "Forecast $4.60, down 11.0\u00a2 from this week's $4.71. Main drivers: Recent pump-price momentum subtracts 10.4\u00a2 (the pump price fell 16.0\u00a2 this week); Crude oil moves subtracts 0.9\u00a2 (crude oil fell $4.42/barrel this week); Pump-vs-crude markup gap adds 0.3\u00a2 (the pump price sits 26\u00a2 below its usual markup over crude)."
+      },
+      "scenarios": [
+        {
+          "crude_shock": -10,
+          "crude_now": 79.62,
+          "Linear regression": 4.610208866716297,
+          "Random forest": 4.600887850730148
+        },
+        {
+          "crude_shock": -5,
+          "crude_now": 84.62,
+          "Linear regression": 4.624229658840489,
+          "Random forest": 4.603630557126306
+        },
+        {
+          "crude_shock": 0,
+          "crude_now": 89.62,
+          "Linear regression": 4.638250450964681,
+          "Random forest": 4.604493614051052
+        },
+        {
+          "crude_shock": 5,
+          "crude_now": 94.62,
+          "Linear regression": 4.652271243088873,
+          "Random forest": 4.622291586618038
+        },
+        {
+          "crude_shock": 10,
+          "crude_now": 99.62,
+          "Linear regression": 4.666292035213065,
+          "Random forest": 4.623491515524916
+        }
+      ]
+    }
+  }
 }
