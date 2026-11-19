@@ -93,6 +93,33 @@
   .tip-row { display: grid; grid-template-columns: 14px auto 1fr; gap: 8px; align-items: center; padding: 1px 0; }
   .tip-key { height: 2px; border-radius: 1px; } .tip-key.none { background: none; }
   .tip-val { font-weight: 650; font-variant-numeric: tabular-nums; } .tip-lab { color: var(--ink2); }
+  .titlerow { display: flex; align-items: center; gap: 16px; margin: 0 0 4px; }
+  .titlerow h1 { margin: 0; }
+  .pump { width: 54px; height: 54px; flex: none; }
+  .ico { width: 22px; height: 22px; flex: none; vertical-align: -5px; margin-right: 6px; color: var(--ink2); }
+  .drivers .grp { display: inline-flex; align-items: center; }
+  .adv { display: grid; grid-template-columns: minmax(200px, 250px) 1fr; gap: 20px 28px; align-items: start; }
+  @media (max-width: 760px) { .adv { grid-template-columns: 1fr; } }
+  .verdict { border-radius: 12px; padding: 14px 16px; border: 1px solid var(--border); background: var(--wash); }
+  .verdict .vbig { font-size: 26px; font-weight: 700; letter-spacing: -0.01em; }
+  .verdict .vsub { color: var(--ink2); font-size: 13px; margin-top: 4px; }
+  .verdict.wait { border-color: var(--down); } .verdict.wait .vbig { color: var(--down); }
+  .verdict.fill { border-color: var(--up); } .verdict.fill .vbig { color: var(--up); }
+  .advwhy { margin: 0 0 10px; font-size: 15px; }
+  .tank { display: flex; flex-wrap: wrap; align-items: center; gap: 8px 12px; margin: 0 0 8px; font-size: 14px; }
+  .tank input { font: inherit; width: 72px; padding: 5px 8px; border-radius: 8px; border: 1px solid var(--border); background: var(--surface); color: var(--ink); }
+  .tank input:focus-visible { outline: 2px solid var(--blue); outline-offset: 2px; }
+  .mapwrap { margin: 4px 0 6px; }
+  #usMap svg { width: 100%; max-width: 640px; height: auto; display: block; }
+  .tile.has { cursor: pointer; }
+  .tile.has:focus-visible { outline: none; }
+  .maplegend { display: flex; flex-wrap: wrap; gap: 6px 16px; align-items: center; font-size: 13px; color: var(--ink2); margin: 6px 0 10px; }
+  .maplegend .sw { display: inline-block; width: 12px; height: 12px; border-radius: 3px; vertical-align: -1px; margin-right: 5px; border: 1px solid var(--border); }
+  .chips { display: flex; flex-wrap: wrap; gap: 8px; margin: 0 0 14px; }
+  .chip { all: unset; cursor: pointer; font-size: 13px; padding: 5px 12px; border-radius: 999px; border: 1px solid var(--border); background: var(--surface); color: var(--ink); }
+  .chip:hover { border-color: var(--ink2); }
+  .chip:focus-visible { outline: 2px solid var(--blue); outline-offset: 2px; }
+  .chip[aria-current="true"] { border-color: var(--ink); font-weight: 650; }
   footer { color: var(--muted); font-size: 12px; margin-top: 8px; }
   [hidden] { display: none !important; }
   @media print { .filters, .link { display: none; } .tableview { display: block !important; } }
@@ -100,7 +127,18 @@
 </head>
 <body>
 <main>
-  <h1>Gas Price Predictor <span class="badge" id="badge"></span></h1>
+  <div class="titlerow">
+    <svg class="pump" viewBox="0 0 64 64" role="img" aria-label="Illustration of a gas pump" fill="none" stroke-linecap="round" stroke-linejoin="round">
+      <rect x="12" y="7" width="28" height="48" rx="5" fill="var(--wash)" stroke="var(--ink2)" stroke-width="2.5"/>
+      <rect x="17" y="13" width="18" height="13" rx="2.5" fill="var(--orange)" stroke="var(--ink2)" stroke-width="2"/>
+      <path d="M21 20h10" stroke="var(--surface)" stroke-width="2.5"/>
+      <path d="M17 36h18M17 43h10" stroke="var(--muted)" stroke-width="2"/>
+      <rect x="8" y="55" width="36" height="5" rx="2" fill="var(--ink2)" stroke="none"/>
+      <path d="M40 22h4.5a5 5 0 0 1 5 5v15a3.5 3.5 0 0 0 7 0V30l-3-4" stroke="var(--ink2)" stroke-width="2.5"/>
+      <path d="M53.5 26h4" stroke="var(--blue)" stroke-width="3"/>
+    </svg>
+    <h1>Gas Price Predictor <span class="badge" id="badge"></span></h1>
+  </div>
   <p class="sub" id="subtitle"></p>
   <div class="note" id="demoNote" role="note" hidden><b>Synthetic demo data.</b> The prices below are generated, not real, so the numbers only show how the prototype works. Put FRED's <code>GASREGW.csv</code> and <code>DCOILWTICO.csv</code> in <code>data/</code> and re-run <code>python src/gas_predictor.py</code> to use real prices.</div>
 
@@ -130,9 +168,23 @@
     </div>
   </section>
 
+  <section class="card" id="advCard" aria-labelledby="advH" hidden>
+    <div class="card-head"><h2 id="advH">Fill up now, or wait?</h2></div>
+    <div class="adv">
+      <div class="verdict" id="advVerdict"></div>
+      <div>
+        <p class="advwhy" id="advWhy"></p>
+        <div class="tank"><label for="tankSz">Your tank (gallons)</label><input type="number" id="tankSz" min="1" max="60" step="1" value="14" inputmode="numeric"><span id="advCost"></span></div>
+        <p class="desc" id="advTrack"></p>
+      </div>
+    </div>
+  </section>
+
   <section class="card" id="regionsCard" aria-labelledby="rgH" hidden>
-    <div class="card-head"><h2 id="rgH">States and cities at a glance</h2></div>
-    <p class="desc">Each area is modeled on its own weekly prices with the same inputs: its recent price moves, national crude oil, and season. Pick an area to open its full breakdown below.</p>
+    <div class="card-head"><h2 id="rgH">Regions and states at a glance</h2></div>
+    <p class="desc">The map groups the country into EIA's regions, each modeled on its own weekly prices. Click a region to open its full breakdown below. The table lists the states EIA tracks, modeled the same way: recent price moves, national crude oil and season.</p>
+    <div class="mapwrap"><div id="usMap"></div></div>
+    <div class="maplegend" id="mapLegend"></div>
     <div class="tablewrap"><table id="rgTable"></table></div>
   </section>
 
@@ -221,7 +273,7 @@
 <script id="data" type="application/json">__DATA__</script>
 <script>
 "use strict";
-const ALL = JSON.parse(document.getElementById('data').textContent);   // { default, order, regions: { name: payload } }
+const ALL = (() => { let raw = document.getElementById('data').textContent.trim(); if (raw[0] === '"') raw = raw.slice(1, -1); return JSON.parse(raw); })();   // { default, order, regions: { name: payload } }
 let D, rows0, N;                                                         // selected area's payload, its explanation rows, index of the upcoming-forecast row
 const LIN = 'Linear regression', RF = 'Random forest', BASE = 'Last-week baseline', ACT = 'Actual price';
 const COLOR = { [LIN]: 'var(--blue)', [RF]: 'var(--orange)', [BASE]: 'var(--muted)', [ACT]: 'var(--ink)' };
@@ -232,6 +284,19 @@ function loadRegion(name) {
   state.region = name; D = ALL.regions[name]; rows0 = D.explanations[RF]; N = rows0.length - 1; state.idx = N;
 }
 loadRegion(ALL.default);
+/* The listed areas are EIA's regions (East Coast, Midwest, ...). States and cities stay in ALL.regions: the map opens them. */
+const NICE = { 'padd 1': 'East Coast', 'padd 1a': 'New England', 'padd 1b': 'Central Atlantic', 'padd 1c': 'Lower Atlantic', 'padd 2': 'Midwest', 'padd 3': 'Gulf Coast', 'padd 4': 'Rocky Mountain', 'padd 5': 'West Coast', 'padd 5 except california': 'West Coast excl. California' };
+const REGION_ORDER = ['East Coast', 'New England', 'Central Atlantic', 'Lower Atlantic', 'Midwest', 'Gulf Coast', 'Rocky Mountain', 'West Coast', 'West Coast excl. California'];
+const REGION_AREAS = {};   // '1a' -> 'New England' (used to shade states that have no series of their own)
+ALL.order = ALL.order.map(n => {
+  const nice = NICE[n.toLowerCase()]; if (!nice) return n;
+  ALL.regions[nice] = ALL.regions[n]; delete ALL.regions[n]; ALL.regions[nice].meta.label = nice;
+  const code = n.toLowerCase().replace(/^padd\s*/, ''); if (/^(1a|1b|1c|2|3|4|5)$/.test(code)) REGION_AREAS[code] = nice;
+  return nice;
+});
+const REGION_LIST = REGION_ORDER.filter(n => ALL.regions[n]);
+ALL.order = ALL.order.filter(n => !REGION_ORDER.includes(n));   // regions are drawn on the map and listed in the dropdown, not in the table
+if (ALL.order.length < 2) ALL.order = [ALL.default].concat(REGION_LIST);
 const MULTI = ALL.order.length > 1;
 const areaName = () => (state.region === ALL.default ? 'U.S.' : state.region);
 
@@ -267,6 +332,19 @@ function featFmt(f, v) {
 }
 const cur = () => D.explanations[state.model][state.idx];
 
+/* ---------- small icons (inline SVG, no image files) ---------- */
+const ICON_PATHS = {
+  'Recent pump-price momentum': ['M3 17l6-6 4 4 8-8', 'M15 7h6v6'],
+  'Crude oil moves': ['M12 3c3.2 4.2 6 7 6 11a6 6 0 0 1-12 0c0-4 2.8-6.8 6-11z', 'M9.5 15a2.6 2.6 0 0 0 2.5 2.4'],
+  'Pump-vs-crude markup gap': ['M4 20h16', 'M7 20v-7', 'M12 20V5', 'M17 20v-10'],
+  'Season & holidays': ['M12 8a4 4 0 1 0 0 8 4 4 0 0 0 0-8z', 'M12 2v2.5', 'M12 19.5V22', 'M2 12h2.5', 'M19.5 12H22', 'M4.9 4.9l1.8 1.8', 'M17.3 17.3l1.8 1.8', 'M4.9 19.1l1.8-1.8', 'M17.3 6.7l1.8-1.8'],
+};
+function icon(group) {
+  const sv = s('svg', { viewBox: '0 0 24 24', class: 'ico', fill: 'none', stroke: 'currentColor', 'stroke-width': '2', 'stroke-linecap': 'round', 'stroke-linejoin': 'round', 'aria-hidden': 'true' });
+  (ICON_PATHS[group] || []).forEach(d => s('path', { d }, sv));
+  return sv;
+}
+
 /* ---------- tooltip ---------- */
 const tipEl = $('#tip');
 function showTip(title, items, x, y) {
@@ -299,7 +377,10 @@ function buildFilters() {
   if (MULTI) {
     $('#regionWrap').hidden = false;
     const rs = $('#regionSel');
-    ALL.order.forEach(n => rs.append(h('option', { value: n, text: n })));
+    rs.append(h('option', { value: ALL.default, text: 'United States' }));
+    const og = (label, names) => { if (!names.length) return; const g = h('optgroup', { label }); names.forEach(n => g.append(h('option', { value: n, text: n }))); rs.append(g); };
+    og('Regions', REGION_LIST);
+    og('States and cities', ALL.order.filter(n => n !== ALL.default && !REGION_LIST.includes(n)));
     rs.addEventListener('change', e => switchRegion(e.target.value));
   }
 }
@@ -309,6 +390,13 @@ function buildWeekOptions() {
   for (let i = N - 1; i >= 0; i--) sel.append(h('option', { value: i, text: 'Back-test: made ' + fmtDate(rows0[i].date) + ' for week of ' + fmtDate(addDays(rows0[i].date, 7)) }));
 }
 function switchRegion(name) { loadRegion(name); refreshAll(); }
+function pickArea(name) {   // choose any area, even one the dropdown does not list (a state or city opened from the map)
+  const rs = $('#regionSel');
+  if (rs && ![...rs.options].some(o => o.value === name)) {
+    rs.append(h('option', { value: name, text: name }));
+  }
+  if (rs) rs.value = name; switchRegion(name);
+}
 
 /* ---------- hero ---------- */
 function drawHero() {
@@ -330,7 +418,7 @@ function drawHero() {
   if (!r.drivers.length) ul.append(h('li', {}, [h('span'), h('span', { class: 'why', text: 'No single factor stands out; the model sees a flat week.' })]));
   r.drivers.forEach(x => ul.append(h('li', {}, [
     h('span', { class: 'amt', text: arrow(x.cents) + ' ' + Math.abs(x.cents).toFixed(1) + '¢' }),
-    h('span', {}, [h('span', { class: 'grp', text: x.group }), h('span', { class: 'why', text: x.cents >= 0 ? 'Pushes up because ' + x.because + '.' : 'Pushes down because ' + x.because + '.' })]),
+    h('span', {}, [h('span', { class: 'grp' }, [icon(x.group), x.group]), h('span', { class: 'why', text: x.cents >= 0 ? 'Pushes up because ' + x.because + '.' : 'Pushes down because ' + x.because + '.' })]),
   ])));
 }
 
@@ -580,10 +668,42 @@ document.querySelectorAll('[data-toggle]').forEach(btn => btn.addEventListener('
   tv.hidden = !showTable; ch.hidden = showTable; const lgd = $('#' + k + 'Legend'); if (lgd) lgd.hidden = showTable;
   btn.textContent = showTable ? 'Chart view' : 'Table view';
 }));
+/* ---------- fill-up advisor: a call only when the whole forecast range sits on one side of today's price ---------- */
+function advCall(now, pred, half) { return pred + half < now ? 'wait' : pred - half > now ? 'fill' : 'toss'; }
+function drawAdvisor() {
+  const card = $('#advCard'), iv = D.intervals;
+  if (!iv || !iv.half_test[state.model]) { card.hidden = true; return; }
+  card.hidden = false;
+  const m = state.model, rows = D.explanations[m], r = cur();
+  const half = state.idx === N ? iv.half_forecast[m] : iv.half_test[m][state.idx];
+  const call = advCall(r.price_now, r.predicted_next, half), chg = r.predicted_next - r.price_now;
+  const v = $('#advVerdict'); v.className = 'verdict ' + call;
+  const big = { wait: 'Wait', fill: 'Fill up now', toss: 'No clear signal' }[call];
+  const sub = { wait: 'Price likely lower next week', fill: 'Price likely higher next week', toss: 'Could go either way' }[call];
+  v.replaceChildren(h('div', { class: 'vbig', text: big }), h('div', { class: 'vsub', text: sub + ' (' + areaName() + ', ' + m + ')' }));
+  const lo = r.predicted_next - half, hi = r.predicted_next + half;
+  $('#advWhy').textContent = call === 'toss'
+    ? `The forecast is ${usd(r.predicted_next)} (${cents(chg * 100)} from ${usd(r.price_now)}), but the likely range, ${usd(lo)} to ${usd(hi)}, includes today's price. The model cannot tell you which way it will go.`
+    : `The forecast is ${usd(r.predicted_next)} (${cents(chg * 100)} from ${usd(r.price_now)}), and even the ${call === 'wait' ? 'high' : 'low'} end of the likely range, ${usd(call === 'wait' ? hi : lo)}, is ${call === 'wait' ? 'below' : 'above'} today's price.`;
+  const tank = Math.max(1, Math.min(60, +$('#tankSz').value || 14));
+  const dc = chg * tank, dlo = (lo - r.price_now) * tank, dhi = (hi - r.price_now) * tank;
+  $('#advCost').textContent = `Filling ${tank} gallons next week: about ${dc >= 0 ? '$' + dc.toFixed(2) + ' more' : '$' + Math.abs(dc).toFixed(2) + ' less'} (range ${dlo < 0 ? '−' : '+'}$${Math.abs(dlo).toFixed(2)} to ${dhi < 0 ? '−' : '+'}$${Math.abs(dhi).toFixed(2)}).`;
+  let n = 0, right = 0, gain = 0;   // track record on the held-out weeks the model never saw
+  for (let i = 0; i < N; i++) {
+    const x = rows[i], c = advCall(x.price_now, x.predicted_next, iv.half_test[m][i]);
+    if (c === 'toss' || x.actual_next == null) continue;
+    n++; const ok = c === 'wait' ? x.actual_next < x.price_now : x.actual_next > x.price_now;
+    if (ok) right++;
+    gain += (c === 'wait' ? x.price_now - x.actual_next : x.actual_next - x.price_now) * 100;
+  }
+  $('#advTrack').textContent = n === 0
+    ? `Track record: on the ${N} held-out weeks the model never made a confident call, so treat every week as a toss-up. That is the honest result, not a bug.`
+    : `Track record on the ${N} held-out weeks: the model made a confident call ${n} time${n === 1 ? '' : 's'} (${Math.round(n / N * 100)}% of weeks) and was right ${right} of ${n} (${Math.round(right / n * 100)}%; a coin flip is 50%). Acting on those calls would have been worth ${gain >= 0 ? '+' : '−'}${Math.abs(gain / n).toFixed(1)}¢ per gallon on average. A call is made only when the whole likely range is on one side of today's price. Not financial advice.`;
+}
 function render() {
   document.querySelectorAll('#modelSeg button').forEach((b, i) => b.setAttribute('aria-pressed', String([RF, LIN][i] === state.model)));
   $('#weekSel').value = state.idx;
-  hideTip(); drawHero(); drawRegions(); drawWhy(); drawBacktest(); drawReaction();
+  hideTip(); drawHero(); drawAdvisor(); drawRegions(); drawWhy(); drawBacktest(); drawReaction();
 }
 function applyMeta() {
   $('#subtitle').textContent = "Next week's " + areaName() + ' regular gasoline price, with a plain-English reason for every forecast. DS 305 final project prototype.';
@@ -718,7 +838,7 @@ function drawReaction() {
   const tb = h('tbody');
   rows.forEach(({ n, P }) => {
     const btn = h('button', { type: 'button', class: 'areabtn', text: n, 'aria-current': String(n === state.region) });
-    btn.addEventListener('click', e => { e.stopPropagation(); $('#regionSel').value = n; switchRegion(n); });
+    btn.addEventListener('click', e => { e.stopPropagation(); pickArea(n); });
     const tr = h('tr', { class: 'areark' + (n === state.region ? ' focus' : '') }, [h('td', {}, [btn]),
       h('td', { class: 'num', text: P.total.toFixed(2) + '¢ per $1/bbl' }), h('td', { class: 'num', text: Math.round(P.total_pct_of_full) + '%' }),
       h('td', { class: 'num', text: P.reliable ? Math.round(P.same_week_share * 100) + '%' : '—' }), h('td', { class: 'num', text: P.reliable ? wk(P.weeks_to_half) : 'not enough signal' }), h('td', { class: 'num', text: P.reliable ? wk(P.weeks_to_80) : '—' })]);
@@ -728,8 +848,103 @@ function drawReaction() {
 }
 
 /* ---------- states / regions at a glance ---------- */
+const TILES = {   // [column, row] of each state on an 11 x 8 tile grid, laid out so every EIA region is one connected block
+  ME: [10, 0],
+  AK: [0, 1], WI: [5, 1], VT: [9, 1], NH: [10, 1], ND: [3, 1],
+  WA: [0, 2], ID: [1, 2], MT: [2, 2], SD: [3, 2], MN: [4, 2], IL: [5, 2], MI: [6, 2], NY: [8, 2], MA: [9, 2],
+  OR: [0, 3], NV: [1, 3], WY: [2, 3], NE: [3, 3], IA: [4, 3], IN: [5, 3], OH: [6, 3], PA: [7, 3], NJ: [8, 3], CT: [9, 3], RI: [10, 3],
+  CA: [0, 4], UT: [1, 4], CO: [2, 4], KS: [3, 4], MO: [4, 4], KY: [5, 4], WV: [6, 4], VA: [7, 4], MD: [8, 4], DE: [9, 4],
+  AZ: [0, 5], OK: [3, 5], AR: [4, 5], TN: [5, 5], NC: [6, 5], SC: [7, 5],
+  HI: [0, 6], NM: [2, 6], TX: [3, 6], LA: [4, 6], MS: [5, 6], AL: [6, 6], GA: [7, 6],
+  FL: [7, 7],
+};
+const STATE_NAMES = { AK: 'Alaska', AL: 'Alabama', AR: 'Arkansas', AZ: 'Arizona', CA: 'California', CO: 'Colorado', CT: 'Connecticut', DE: 'Delaware', FL: 'Florida', GA: 'Georgia', HI: 'Hawaii', IA: 'Iowa', ID: 'Idaho', IL: 'Illinois', IN: 'Indiana', KS: 'Kansas', KY: 'Kentucky', LA: 'Louisiana', MA: 'Massachusetts', MD: 'Maryland', ME: 'Maine', MI: 'Michigan', MN: 'Minnesota', MO: 'Missouri', MS: 'Mississippi', MT: 'Montana', NC: 'North Carolina', ND: 'North Dakota', NE: 'Nebraska', NH: 'New Hampshire', NJ: 'New Jersey', NM: 'New Mexico', NV: 'Nevada', NY: 'New York', OH: 'Ohio', OK: 'Oklahoma', OR: 'Oregon', PA: 'Pennsylvania', RI: 'Rhode Island', SC: 'South Carolina', SD: 'South Dakota', TN: 'Tennessee', TX: 'Texas', UT: 'Utah', VA: 'Virginia', VT: 'Vermont', WA: 'Washington', WI: 'Wisconsin', WV: 'West Virginia', WY: 'Wyoming' };
+const PADD_OF = {   // which EIA region each state belongs to (EIA's own definition)
+  CT: '1a', ME: '1a', MA: '1a', NH: '1a', RI: '1a', VT: '1a',
+  DE: '1b', MD: '1b', NJ: '1b', NY: '1b', PA: '1b',
+  FL: '1c', GA: '1c', NC: '1c', SC: '1c', VA: '1c', WV: '1c',
+  IL: '2', IN: '2', IA: '2', KS: '2', KY: '2', MI: '2', MN: '2', MO: '2', NE: '2', ND: '2', OH: '2', OK: '2', SD: '2', TN: '2', WI: '2',
+  AL: '3', AR: '3', LA: '3', MS: '3', NM: '3', TX: '3',
+  CO: '4', ID: '4', MT: '4', UT: '4', WY: '4',
+  AK: '5', AZ: '5', CA: '5', HI: '5', NV: '5', OR: '5', WA: '5',
+};
+const PADD_NAMES = { '1a': 'New England', '1b': 'Central Atlantic', '1c': 'Lower Atlantic', '2': 'Midwest', '3': 'Gulf Coast', '4': 'Rocky Mountain', '5': 'West Coast' };
+function areaChange(name) {
+  const rows = ALL.regions[name].explanations[state.model], r = rows[rows.length - 1];
+  return { chg: (r.predicted_next - r.price_now) * 100, now: r.price_now, next: r.predicted_next };
+}
+const CODE_TO_GROUP = { '1a': 'East Coast', '1b': 'East Coast', '1c': 'East Coast', '2': 'Midwest', '3': 'Gulf Coast', '4': 'Rocky Mountain', '5': 'West Coast' };
+const GROUP_OF = {}; for (const ab of Object.keys(TILES)) GROUP_OF[ab] = CODE_TO_GROUP[PADD_OF[ab]];
+const SHORT = { 'East Coast': ['East', 'Coast'], 'West Coast': ['West', 'Coast'], 'Gulf Coast': ['Gulf', 'Coast'], 'Midwest': ['Midwest'], 'Rocky Mountain': ['Rocky', 'Mountain'] };
+const LABEL_AT = { 'Rocky Mountain': [1.5, 2], 'Gulf Coast': [4.5, 6], 'East Coast': [8, 3.5] };   // label centre, in tile units, where the default would sit badly
+function drawMap() {
+  const T = 50, P = 3, W = 11 * T + 2 * P, H = 8 * T + 2 * P;
+  const names = [...new Set(Object.values(GROUP_OF))].filter(n => ALL.regions[n]);
+  const wrap = $('.mapwrap'); wrap.hidden = !names.length; $('#mapLegend').hidden = !names.length; if (!names.length) return;
+  const mx = Math.max(1, ...names.map(n => Math.abs(areaChange(n).chg)));
+  const cell = {}; for (const [ab, [c, r]] of Object.entries(TILES)) cell[c + ',' + r] = ab;
+  const sv = s('svg', { viewBox: `0 0 ${W} ${H}`, role: 'group', 'aria-label': 'Map of the United States split into regions. Each colored block is one region with its own forecast.' });
+  const G = {};
+  names.forEach(n => {
+    const a = areaChange(n), g = s('g', { class: 'tile has', tabindex: '0', role: 'button', 'aria-label': `${n}: forecast ${usd(a.next)}, ${a.chg >= 0 ? 'up' : 'down'} ${Math.abs(a.chg).toFixed(1)} cents. Open this region.` }, sv);
+    G[n] = g;
+  });
+  for (const [ab, [c, r]] of Object.entries(TILES)) {
+    const n = GROUP_OF[ab], x = P + c * T, y = P + r * T;
+    if (G[n]) { const a = areaChange(n); s('rect', { x, y, width: T, height: T, fill: a.chg >= 0 ? 'var(--up)' : 'var(--down)', 'fill-opacity': (0.2 + 0.7 * Math.min(1, Math.abs(a.chg) / mx)).toFixed(2) }, G[n]); }
+    else s('rect', { x, y, width: T, height: T, fill: 'var(--wash)' }, sv);
+  }
+  // labels: one per connected block of tiles (big blocks also show the forecast change; lone tiles just the name)
+  const seen = new Set();
+  const px = c => P + c * T + T / 2, py = r => P + r * T + T / 2;
+  for (const start of Object.keys(TILES)) {
+    const n = GROUP_OF[start]; if (!G[n] || seen.has(start)) continue;
+    const comp = [], q = [start]; seen.add(start);
+    while (q.length) {
+      const ab = q.pop(); comp.push(ab); const [c, r] = TILES[ab];
+      for (const [dc, dr] of [[1, 0], [-1, 0], [0, 1], [0, -1]]) { const nb = cell[(c + dc) + ',' + (r + dr)]; if (nb && GROUP_OF[nb] === n && !seen.has(nb)) { seen.add(nb); q.push(nb); } }
+    }
+    const mc = comp.reduce((s_, ab) => s_ + TILES[ab][0], 0) / comp.length, mr = comp.reduce((s_, ab) => s_ + TILES[ab][1], 0) / comp.length;
+    const anchor = comp.reduce((best, ab) => { const d = (TILES[ab][0] - mc) ** 2 + (TILES[ab][1] - mr) ** 2; return d < best.d ? { ab, d } : best; }, { ab: comp[0], d: 1e9 }).ab;
+    const at = LABEL_AT[n], cx = at ? px(at[0]) : px(TILES[anchor][0]), cy = at ? py(at[1]) : py(TILES[anchor][1]), a = areaChange(n), big = comp.length >= 4, lines = SHORT[n] || [n];
+    const rows = lines.map(l => ({ text: l, size: big ? (l.length > 7 ? 11 : 12) : 9.5, w: 700 })).concat(big ? [{ text: (a.chg >= 0 ? '↑' : '↓') + Math.abs(a.chg).toFixed(0) + '¢', size: 15, w: 700 }] : []);
+    const lh = big ? 15 : 11; let y0 = cy - ((rows.length - 1) * lh) / 2 + 4;
+    rows.forEach((rw, i) => s('text', { x: cx, y: y0 + i * lh, 'text-anchor': 'middle', 'font-size': rw.size, 'font-weight': rw.w, fill: 'var(--ink)', 'pointer-events': 'none', text: rw.text }, G[n]));
+  }
+  // outlines: a line on every tile edge that touches another region or the sea; drawn last so they sit on top
+  const edgeLayer = s('g', { fill: 'none', 'stroke-linecap': 'round', 'pointer-events': 'none' }, sv), E = {};
+  names.forEach(n => { E[n] = []; });
+  for (const [ab, [c, r]] of Object.entries(TILES)) {
+    const n = GROUP_OF[ab], x = P + c * T, y = P + r * T;
+    for (const [dc, dr, x1, y1, x2, y2] of [[0, -1, x, y, x + T, y], [0, 1, x, y + T, x + T, y + T], [-1, 0, x, y, x, y + T], [1, 0, x + T, y, x + T, y + T]]) {
+      const nb = cell[(c + dc) + ',' + (r + dr)];
+      if (nb && GROUP_OF[nb] === n) continue;
+      const ln = s('line', { x1, y1, x2, y2, stroke: nb ? 'var(--surface)' : 'none', 'stroke-width': 5 }, edgeLayer);   // white channel between regions
+      if (E[n]) E[n].push({ ln, sea: !nb });
+    }
+  }
+  const style = (n, mode) => E[n].forEach(({ ln, sea }) => { ln.setAttribute('stroke', mode ? (mode === 'focus' ? 'var(--blue)' : 'var(--ink)') : (sea ? 'none' : 'var(--surface)')); ln.setAttribute('stroke-width', mode ? 4 : 5); if (mode) edgeLayer.append(ln); });
+  names.forEach(n => {
+    const g = G[n], a = areaChange(n);
+    if (n === state.region) style(n, 'on');
+    const items = () => [{ key: a.chg >= 0 ? 'var(--up)' : 'var(--down)', value: usd(a.next), label: 'forecast (now ' + usd(a.now) + ')' }, { value: cents(a.chg), label: 'expected change', key: null }];
+    g.addEventListener('pointermove', e => { showTip(n, items(), e.clientX, e.clientY); style(n, 'on'); });
+    g.addEventListener('pointerleave', () => { hideTip(); style(n, n === state.region ? 'on' : null); });
+    g.addEventListener('focus', () => { focusTip(g, n, items()); style(n, 'focus'); });
+    g.addEventListener('blur', () => { hideTip(); style(n, n === state.region ? 'on' : null); });
+    const go = () => { hideTip(); pickArea(n); };
+    g.addEventListener('click', go);
+    g.addEventListener('keydown', e => { if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); go(); } });
+  });
+  $('#usMap').replaceChildren(sv);
+  $('#mapLegend').replaceChildren(
+    h('span', {}, [h('span', { class: 'sw', style: 'background:var(--up);opacity:.7' }), 'Forecast to rise']),
+    h('span', {}, [h('span', { class: 'sw', style: 'background:var(--down);opacity:.7' }), 'Forecast to fall (darker = bigger move)']),
+    h('span', {}, ['Regions are EIA\'s official regions; a dark outline marks the one you have open.']));
+}
 function drawRegions() {
   const card = $('#regionsCard'); card.hidden = !MULTI; if (!MULTI) return;
+  drawMap();
   const us = ALL.regions[ALL.default], mdl = state.model;
   const cols = ['Area', 'Price now', 'vs. U.S.', 'Forecast', 'Change', 'Error vs. baseline', 'For week of'];
   const tbl = h('table', { id: 'rgTable' });
@@ -742,7 +957,7 @@ function drawRegions() {
     const imp = Math.round((1 - m.MAE / base.MAE) * 100);
     const comparable = name !== ALL.default && P.meta.last_observed_week === us.meta.last_observed_week;
     const btn = h('button', { type: 'button', class: 'areabtn', text: name, 'aria-current': String(name === state.region) });
-    btn.addEventListener('click', e => { e.stopPropagation(); $('#regionSel').value = name; switchRegion(name); });
+    btn.addEventListener('click', e => { e.stopPropagation(); pickArea(name); });
     const tr = h('tr', { class: 'areark' + (name === state.region ? ' focus' : '') }, [
       h('td', {}, [btn]),
       h('td', { class: 'num', text: usd(r.price_now) }),
@@ -759,6 +974,8 @@ function drawRegions() {
 }
 function refreshAll() { applyMeta(); buildWeekOptions(); drawScore(); drawWalkForward(); drawWhatIf(); drawAsym(); drawImportance(); render(); }
 buildFilters();
+try { const ts = localStorage.getItem('tankSz'); if (ts) $('#tankSz').value = ts; } catch (e) {}
+$('#tankSz').addEventListener('input', () => { try { localStorage.setItem('tankSz', $('#tankSz').value); } catch (e) {} drawAdvisor(); });
 refreshAll();
 </script>
 </body>

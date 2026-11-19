@@ -30,7 +30,7 @@ PAGE = 5000  # EIA's maximum rows per request
 
 # EIA publishes weekly retail prices for exactly these 9 states (plus regions). Not all 50.
 STATES = ["California", "Colorado", "Florida", "Massachusetts", "Minnesota", "New York", "Ohio", "Texas", "Washington"]
-DEFAULT_AREAS = "states,metros"   # the 9 states EIA surveys + the cities it surveys. PADD regions are opt-in: add "regions".
+DEFAULT_AREAS = "states,metros,regions"   # 9 states + cities + the 7 PADD regions (the dashboard map uses regions only to shade the 41 other states)
 
 
 class EiaError(RuntimeError):

@@ -437,7 +437,11 @@ def main():
     if not tpl.exists():
         sys.exit(f"Dashboard template not found: {tpl}\nCopy dashboard_template.html into the src folder next to gas_predictor.py and run again.")
     dash = args.out_dir / "dashboard.html"
-    dash.write_text(tpl.read_text(encoding="utf-8").replace("__DATA__", json.dumps(bundle)), encoding="utf-8")
+    html = tpl.read_text(encoding="utf-8")
+    if "__DATA__" not in html:
+        sys.exit(f"{tpl} has no __DATA__ placeholder. Use the dashboard_template.html from the project zip (not a finished dashboard.html).")
+    # also swallow stray quote marks an editor may have put around the placeholder ("__DATA__")
+    dash.write_text(re.sub(r'"?__DATA__"?', lambda _m: json.dumps(bundle), html, count=1), encoding="utf-8")
     print(f"Dashboard written: {dash.resolve()}  ({dash.stat().st_size / 1e6:.1f} MB, {len(results)} areas)", flush=True)
 
     if not args.no_figures:
