@@ -1,5 +1,19 @@
 # Gas Price Predictor (DS 305 prototype)
 
+## Quick start
+
+```bash
+pip install pandas numpy scikit-learn
+python src/gas_predictor.py
+```
+
+If the data is missing, the program asks you to paste a free EIA API key (get one at https://www.eia.gov/opendata/register.php),
+downloads everything, and writes one file: `outputs/dashboard.html` (open it in your browser).
+Press Enter at the prompt to skip the download and see demo data instead. The key is not saved.
+
+The older notes below still apply; ignore the parts about CSV, JSON and PNG outputs, which are no longer written.
+
+
 Forecasts next week's U.S. regular gasoline price from recent pump prices, crude oil prices and seasonality,
 and **explains every forecast** in plain English.
 
