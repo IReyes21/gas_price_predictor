@@ -1,0 +1,72 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Gas Price Forecast</title>
+<style>
+  body { font-family: Arial, sans-serif; background: #f4f6f8; color: #222; margin: 0; padding: 16px; }
+  .page { max-width: 720px; margin: 0 auto; }
+  h1 { margin: 0 0 4px 0; }
+  h2 { margin: 0 0 10px 0; font-size: 18px; }
+  .card { background: white; border-radius: 8px; padding: 16px; margin-top: 16px; box-shadow: 0 1px 3px rgba(0,0,0,0.15); }
+  .big { font-size: 44px; font-weight: bold; margin: 0; }
+  .small { color: #666; font-size: 13px; }
+  .map { display: grid; grid-template-columns: repeat(11, 1fr); gap: 3px; margin-bottom: 12px; }
+  .tile { aspect-ratio: 1; display: flex; align-items: center; justify-content: center; font-size: 11px; border-radius: 3px; }
+  table { width: 100%; border-collapse: collapse; }
+  td { padding: 4px 0; border-bottom: 1px solid #eee; }
+  td:last-child { text-align: right; font-weight: bold; }
+  .dot { display: inline-block; width: 12px; height: 12px; border-radius: 6px; margin-right: 8px; }
+  input, select { font-size: 16px; padding: 6px; }
+</style>
+</head>
+<body>
+<div class="page">
+  <h1>Gas Price Forecast</h1>
+  <p class="small">{{BANNER}}</p>
+
+  <div class="card">
+    <h2>U.S. regular gas, week of {{WEEK}}</h2>
+    <p class="big">${{PRICE}}</p>
+    <p>{{CHANGE}} from ${{NOW}} this week. {{RANGE}}</p>
+    <p class="small">{{SUMMARY}}</p>
+    <p class="small">{{ACCURACY}}</p>
+  </div>
+
+  <div class="card">
+    <h2>Forecast by region</h2>
+    {{MAP}}
+  </div>
+
+  <div class="card">
+    <h2>Fill-up calculator</h2>
+    <p>
+      <input id="gallons" type="number" value="12" min="0" step="0.5" oninput="update()"> gallons in
+      <select id="area" onchange="update()">
+{{OPTIONS}}
+      </select>
+    </p>
+    <p>Estimated cost next week: <b id="cost"></b> <span class="small">(this week: <span id="costnow"></span>)</span></p>
+  </div>
+
+  <div class="card">
+    <h2>How past forecasts did</h2>
+    <p class="small">Each point is the price one week after the forecast was made, on weeks the model never saw.</p>
+    {{BACKTEST}}
+  </div>
+</div>
+
+<script>
+  function update() {
+    var box = document.getElementById("area");
+    var gallons = Number(document.getElementById("gallons").value);
+    var price = Number(box.value);
+    var priceNow = Number(box.options[box.selectedIndex].dataset.now);
+    document.getElementById("cost").textContent = "$" + (price * gallons).toFixed(2);
+    document.getElementById("costnow").textContent = "$" + (priceNow * gallons).toFixed(2);
+  }
+  update();
+</script>
+</body>
+</html>

@@ -16,6 +16,7 @@ from __future__ import annotations
 import argparse
 import json
 import math
+import os
 import re
 import sys
 import time
@@ -35,6 +36,7 @@ from analysis_extras import crude_asymmetry, flat_crude_shift, passthrough_speed
 from eia_fetch import DEFAULT_AREAS, EiaError, fetch_all  # noqa: E402
 from explain import feature_table, forest_explain, linear_explain, sentence, to_groups, top_drivers  # noqa: E402
 from features import FEATURE_GROUPS, FEATURE_LABELS, FEATURES, make_features  # noqa: E402
+from simple_dashboard import PADD_NAMES, write_dashboard  # noqa: E402
 
 ROOT = Path(__file__).resolve().parent.parent
 BASELINE, LINEAR, FOREST = "Last-week baseline", "Linear regression", "Random forest"
@@ -361,8 +363,7 @@ def main():
     ap.add_argument("--demo", action="store_true", help="force synthetic demo data")
     ap.add_argument("--test-frac", type=float, default=0.2, help="share of weeks held out, chronologically")
     ap.add_argument("--seed", type=int, default=42)
-    ap.add_argument("--no-figures", action="store_true")
-    ap.add_argument("--no-walkforward", action="store_true", help="skip the rolling-retrain back-test (saves time on many areas)")
+    ap.add_argument("--walkforward", action="store_true", help="also run the slow rolling-retrain back-test (not shown in the dashboard)")
     ap.add_argument("--fetch-eia", action="store_true",
                     help="first download fresh data from the EIA API (U.S. gas, WTI crude, states, cities) into the data folder")
     ap.add_argument("--eia-key", default=None, help="EIA API key (or set the EIA_API_KEY environment variable)")
@@ -371,6 +372,7 @@ def main():
                          '(default: "%s"; EIA publishes only 9 states weekly)' % DEFAULT_AREAS)
     ap.add_argument("--open", action="store_true", help="open the finished dashboard in your browser")
     args = ap.parse_args()
+    args.no_walkforward = not args.walkforward
     for stream in (sys.stdout, sys.stderr):   # Windows consoles default to cp1252/cp437; never crash on a symbol
         try:
             stream.reconfigure(encoding="utf-8", errors="replace")
@@ -378,14 +380,25 @@ def main():
             pass
     args.out_dir.mkdir(parents=True, exist_ok=True)
 
-    # ---- optional: refresh the data folder from the EIA API ---------------------------
-    if args.fetch_eia:
-        import os
-        try:
-            fetch_all(args.eia_key or os.environ.get("EIA_API_KEY", ""), args.data_dir, args.eia_areas)
-        except EiaError as e:
-            sys.exit("EIA download failed: %s" % e)
-        print()
+    # ---- download from EIA if asked to, or if data is missing (then we ask for the key) ----
+    regions_dir = args.data_dir / "regions"
+    have_data = (args.data_dir / "GASREGW.csv").exists() and (args.data_dir / "DCOILWTICO.csv").exists()
+    have_regions = any((regions_dir / (name.replace(" ", "_") + ".csv")).exists() for name in PADD_NAMES)
+    if args.fetch_eia or (not args.demo and not (have_data and have_regions)):
+        key = args.eia_key or os.environ.get("EIA_API_KEY", "")
+        if not key:
+            print("Some data is missing. You can download it free from EIA.")
+            print("Get a key (takes a minute): https://www.eia.gov/opendata/register.php")
+            try:
+                key = input("Paste your EIA API key here, or press Enter to skip: ").strip()
+            except EOFError:
+                key = ""
+        if key:
+            try:
+                fetch_all(key, args.data_dir, args.eia_areas)
+            except EiaError as e:
+                sys.exit("EIA download failed: %s" % e)
+            print()
 
     # ---- data + one analysis per area --------------------------------------------------
     df, source, is_demo = load_weekly(args.data_dir, args.demo)
@@ -399,58 +412,10 @@ def main():
     us = results[US]
     meta, metrics, explained = us["meta"], us["metrics"], us["explained"]
 
-    # ---- export ------------------------------------------------------------------------
-    metrics.to_csv(args.out_dir / "metrics.csv", index=False)
-    pd.DataFrame(us["scaling"]).to_csv(args.out_dir / "runtime_scaling.csv", index=False)
-    if regions:
-        pd.concat([r["metrics"].assign(region=label) for label, r in results.items()])[["region"] + list(metrics.columns)].to_csv(args.out_dir / "metrics_by_region.csv", index=False)
-
-    def extras_row(label, r):
-        p = r["payload"]
-        a, sp, iv, wf = p["asymmetry"], p["passthrough"], p["intervals"], p["walkforward"]
-        row = {"area": label, "weeks_used": r["n_train"] + r["n_test"]}
-        if a:
-            row.update({"rise_cents_per_1usd_bbl_6wk": a["rise"][-1], "fall_cents_per_1usd_bbl_6wk": a["fall"][-1], "rise_minus_fall_6wk": a["diff"][-1], "p_total_gap": a["p_value"],
-                        "speed_gap_same_week": a["diff"][0], "p_speed_gap_same_week": a["diff_p"][0], "speed_signal": a["speed_dir"] or "none"})
-        if sp:
-            row.update({"passthrough_cents_per_1usd_bbl": sp["total"], "passthrough_pct_of_crude_cost": sp["total_pct_of_full"], "same_week_share": sp["same_week_share"], "weeks_to_half": sp["weeks_to_half"]})
-        if iv:
-            row.update({"range_coverage_linear": iv["coverage"][LINEAR], "range_coverage_forest": iv["coverage"][FOREST], "range_target": iv["level"]})
-        if wf:
-            m = {x["model"]: x["MAE"] for x in wf["metrics"]}
-            row.update({"walkforward_MAE_baseline": m[BASELINE], "walkforward_MAE_linear": m[LINEAR], "walkforward_MAE_forest": m[FOREST]})
-        return row
-
-    pd.DataFrame([extras_row(label, r) for label, r in results.items()]).to_csv(args.out_dir / "extras_by_area.csv", index=False)
-
-    def latest(res):
-        return {"meta": res["meta"], **{m: {k: v for k, v in res["explained"][m][-1].items() if k != "features"} for m in (LINEAR, FOREST)}, "scenarios": res["payload"]["scenarios"]}
-
-    latest_json = latest(us)
-    if regions:
-        latest_json["regions"] = {label: latest(r) for label, r in results.items() if label != US}
-    (args.out_dir / "latest_forecast.json").write_text(json.dumps(latest_json, indent=2), encoding="utf-8")
-
-    bundle = {"default": US, "order": list(results), "regions": {label: r["payload"] for label, r in results.items()}}
-    (args.out_dir / "dashboard_data.json").write_text(json.dumps(bundle), encoding="utf-8")
-    tpl = Path(__file__).resolve().parent / "dashboard_template.html"
-    if not tpl.exists():
-        sys.exit(f"Dashboard template not found: {tpl}\nCopy dashboard_template.html into the src folder next to gas_predictor.py and run again.")
+    # ---- write the dashboard ----
     dash = args.out_dir / "dashboard.html"
-    html = tpl.read_text(encoding="utf-8")
-    if "__DATA__" not in html:
-        sys.exit(f"{tpl} has no __DATA__ placeholder. Use the dashboard_template.html from the project zip (not a finished dashboard.html).")
-    # also swallow stray quote marks an editor may have put around the placeholder ("__DATA__")
-    dash.write_text(re.sub(r'"?__DATA__"?', lambda _m: json.dumps(bundle), html, count=1), encoding="utf-8")
-    print(f"Dashboard written: {dash.resolve()}  ({dash.stat().st_size / 1e6:.1f} MB, {len(results)} areas)", flush=True)
-
-    if not args.no_figures:
-        from plots import make_figures  # noqa: E402
-
-        make_figures(us["payload"], args.out_dir / "figures")
-        for label, r in results.items():
-            if label != US:
-                make_figures(r["payload"], args.out_dir / "figures" / slug(label))
+    write_dashboard(results, dash)
+    print(f"Dashboard written: {dash.resolve()}", flush=True)
 
     # ---- console summary ---------------------------------------------------------------
     pd.set_option("display.width", 160)
@@ -491,8 +456,6 @@ def main():
                   f"{beats_baseline(r['metrics'], LINEAR)!s:>5}/{beats_baseline(r['metrics'], FOREST)!s:<5}   {r['n_train']}/{r['n_test']}")
         for s in skipped:
             print(f"  skipped '{s}': fewer than 120 weeks overlap with the crude file")
-        print("  (per-area range coverage, walk-forward errors and pass-through are in outputs/extras_by_area.csv)")
-    print(f"\nWrote {args.out_dir}/")
     if args.open:
         import webbrowser
         webbrowser.open(dash.resolve().as_uri())
